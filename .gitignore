@@ -8,8 +8,10 @@ lerna-debug.log
 package-lock.json
 /node_modules
 .build/
+tsconfig.tsbuildinfo
 
 packages/*/dist/*
+packages/*/src/**/*.d.ts
 
 # Ignore internal todo-list (if any)
 .todo.md

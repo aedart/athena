@@ -28,7 +28,9 @@
     "clean": "lerna clean",
     "build": "lerna run compile",
     "compile": "lerna run compile",
-    "watch": "lerna run watch"
+    "watch": "lerna run watch",
+    "test": "npm run compile && karma start tests/config/prod.conf.js",
+    "test-dev": "npm run compile && karma start tests/config/dev.conf.js"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",

@@ -31,6 +31,10 @@
     "watch": "lerna run watch"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@babel/preset-env": "^7.15.0",
+    "babel-loader": "^8.2.2",
     "@rollup/plugin-commonjs": "^18.0.0",
     "@rollup/plugin-json": "^4.0.0",
     "@rollup/plugin-node-resolve": "^11.2.1",
@@ -43,6 +47,16 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.30.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "faker": "^5.5.3",
+    "jasmine-core": "^3.8.0",
+    "karma": "^6.3.4",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-firefox-launcher": "^2.1.1",
+    "karma-jasmine": "^4.0.1",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-webpack": "^5.0.0",
+    "puppeteer": "^10.2.0",
+    "webpack": "^5.51.1"
   }
 }

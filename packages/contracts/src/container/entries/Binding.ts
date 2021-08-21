@@ -5,11 +5,6 @@ import {
 } from "../aliases";
 
 /**
- * Binding identifier
- */
-export const BINDING: unique symbol = Symbol('@aedart/contracts/container/binding');
-
-/**
  * Binding
  */
 export default interface Binding {

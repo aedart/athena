@@ -1,12 +1,9 @@
-import ContainerContract, { CONTAINER } from "@aedart/contracts/dist/container";
+import ContainerException from "./exceptions/ContainerException";
+import NotFoundException from "./exceptions/NotFoundException";
+import BindingResolutionException from "./exceptions/BindingResolutionException";
 
-/**
- * TODO: ...
- */
-export default class Container implements ContainerContract {
-
-    todo() {
-        return CONTAINER;
-    }
-
+export {
+    ContainerException,
+    NotFoundException,
+    BindingResolutionException
 }

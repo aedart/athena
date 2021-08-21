@@ -16,8 +16,6 @@ export default class Binding implements BindingContract {
      * The abstract abstractIdentifier of this binding
      *
      * @protected
-     *
-     * @type {BindingIdentifier}
      */
     protected readonly abstractIdentifier: BindingIdentifier;
 
@@ -25,8 +23,6 @@ export default class Binding implements BindingContract {
      * Concrete value of binding
      *
      * @protected
-     *
-     * @type {ConcreteCallback|ConcreteInstance}
      */
     protected readonly concreteValue: ConcreteCallback | ConcreteInstance;
 
@@ -34,8 +30,6 @@ export default class Binding implements BindingContract {
      * State whether binding is shared or not
      *
      * @protected
-     *
-     * @type {boolean}
      */
     protected readonly isShared: boolean;
 
@@ -44,8 +38,6 @@ export default class Binding implements BindingContract {
      * or not
      *
      * @protected
-     *
-     * @type {boolean}
      */
     protected readonly isOfTypeCallback: boolean;
 

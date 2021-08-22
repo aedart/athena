@@ -1,6 +1,6 @@
 import ContainerContract, {
     BindingIdentifier,
-    ConcreteCallback,
+    FactoryCallback,
     ConcreteInstance,
     Binding
 } from "@aedart/contracts/dist/container";
@@ -12,6 +12,15 @@ import BindingEntry from "./entries/Binding";
  * @see ContainerContract
  */
 export default class Container implements ContainerContract {
+
+    /**
+     * The current singleton container instance
+     *
+     * @protected
+     *
+     * @type {ContainerContract|null}
+     */
+    protected static instance: ContainerContract | null = null;
 
     /**
      * Map of bindings
@@ -44,6 +53,32 @@ export default class Container implements ContainerContract {
     }
 
     /**
+     * Get the singleton instance of the container
+     *
+     * @return {ContainerContract}
+     */
+    static getInstance(): ContainerContract {
+        if (this.instance === null || this.instance === undefined) {
+            return this.setInstance(new this());
+        }
+
+        return this.instance;
+    }
+
+    /**
+     * Set the singleton instance of the container
+     *
+     * @param {ContainerContract} container
+     *
+     * @return {ContainerContract}
+     */
+    static setInstance(container: ContainerContract): ContainerContract {
+        this.instance = container;
+
+        return this.instance;
+    }
+
+    /**
      * Map of this container's bindings
      *
      * @return {Map<BindingIdentifier, Binding>}
@@ -70,13 +105,13 @@ export default class Container implements ContainerContract {
         return this.instancesMap;
     }
 
-    bind(abstract: BindingIdentifier, concrete?: ConcreteCallback, shared?: boolean): void {
+    bind(abstract: BindingIdentifier, concrete: FactoryCallback, shared: boolean = false): void {
     }
 
-    singleton(abstract: BindingIdentifier, concrete?: ConcreteCallback): void {
+    singleton(abstract: BindingIdentifier, concrete: FactoryCallback): void {
     }
 
-    instance(abstract: BindingIdentifier, instance?: ConcreteInstance): ConcreteInstance {
+    instance(abstract: BindingIdentifier, instance: ConcreteInstance): ConcreteInstance {
         return undefined;
     }
 
@@ -99,7 +134,7 @@ export default class Container implements ContainerContract {
         return undefined;
     }
 
-    tryMake(abstract: BindingIdentifier, defaultInstance?: ConcreteInstance, ...params: any[]): ConcreteInstance {
+    tryMake(abstract: BindingIdentifier, defaultInstance: ConcreteInstance = null, ...params: any[]): ConcreteInstance {
         return undefined;
     }
 
@@ -131,7 +166,7 @@ export default class Container implements ContainerContract {
      * Set a binding in this container
      *
      * @param {BindingIdentifier} abstract
-     * @param {ConcreteCallback|ConcreteInstance} [concrete]
+     * @param {FactoryCallback|ConcreteInstance} [concrete]
      * @param {boolean} [shared]
      * @param {boolean} [isCallback]
      *
@@ -139,7 +174,7 @@ export default class Container implements ContainerContract {
      */
     protected setBinding(
         abstract: BindingIdentifier,
-        concrete: ConcreteCallback | ConcreteInstance = null,
+        concrete: FactoryCallback | ConcreteInstance = null,
         shared: boolean = false,
         isCallback: boolean = false
     ): void {

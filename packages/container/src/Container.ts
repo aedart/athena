@@ -4,6 +4,8 @@ import ContainerContract, {
     ConcreteInstance,
     Binding
 } from "@aedart/contracts/dist/container";
+import BindingResolutionException from "./exceptions/BindingResolutionException";
+import NotFoundException from "./exceptions/NotFoundException";
 import BindingEntry from "./entries/Binding";
 
 /**
@@ -195,16 +197,74 @@ export default class Container implements ContainerContract {
         return this.has(abstract);
     }
 
+    /**
+     * Find and resolve concrete instance that matches given identifier
+     *
+     * @param {BindingIdentifier} abstract
+     *
+     * @return {ConcreteInstance}
+     *
+     * @throws {NotFoundException} If no concrete instance was found for given identifier
+     * @throws {ContainerException} If unable to resolve binding
+     */
     get(abstract: BindingIdentifier): ConcreteInstance {
-        return undefined;
+        return this.make(abstract);
     }
 
+    /**
+     * Resolve binding
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {...any} [params] Eventual parameters to be passed onto the binding
+     *
+     * @return {ConcreteInstance}
+     *
+     * @throws {NotFoundException} If no concrete instance was found for given identifier
+     * @throws {BindingException} If unable to resolve binding
+     */
     make(abstract: BindingIdentifier, ...params: any[]): ConcreteInstance {
-        return undefined;
+        // Resolve identifier, if an alias was given
+        abstract = this.resolveAbstract(abstract);
+
+        // Return singleton instance, if requested identifier matches a previously initiated instance
+        if(this.instances.has(abstract)){
+            return this.instances.get(abstract);
+        }
+
+        // Find binding entry object - or fail
+        let binding = this.findBinding(abstract);
+
+        // Attempt to build concrete instance from binding
+        let instance = this.build(binding, ...params);
+
+        // Set instance, if binding entry is marked as "shared"
+        if(binding.shared){
+            this.instances.set(abstract, instance);
+        }
+
+        return instance;
     }
 
-    tryMake(abstract: BindingIdentifier, defaultInstance: ConcreteInstance = null, ...params: any[]): ConcreteInstance {
-        return undefined;
+    /**
+     * Attempt to resolve binding and return it's concrete instance or return
+     * a default, if no concrete instance exists for given identifier.
+     *
+     * Note: The method might still fail, in case of the biding cannot be resolved.
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {ConcreteInstance} [defaultInstance] Default instance to be returned if no binding exists for given identifier
+     * @param {...any} [params] Eventual parameters to be passed onto the binding
+     *
+     * @return {ConcreteInstance}
+     *
+     * @throws {BindingException} If unable to resolve binding
+     */
+    makeOrDefault(abstract: BindingIdentifier, defaultInstance: ConcreteInstance = null, ...params: any[]): ConcreteInstance {
+        if (!this.has(abstract)) {
+            return defaultInstance;
+        }
+
+        return this.make(abstract, ...params);
     }
 
     /**
@@ -232,10 +292,83 @@ export default class Container implements ContainerContract {
      ****************************************************************/
 
     /**
+     * Builds a concrete instance from given binding or function
+     *
+     * @param {Function|Binding} concrete
+     * @param {...any} [params]
+     *
+     * @return {ConcreteInstance}
+     *
+     * @throws {BindingResolutionException}
+     *
+     * @protected
+     */
+    protected build(concrete: Function | Binding, ...params: any[]): ConcreteInstance {
+        // Resolve from binding entry object, if that is provided
+        if (this.isBinding(concrete)) {
+            // @ts-ignore
+            return this.resolveFromBinding(concrete, ...params);
+        }
+
+        // TODO: Resolve dependencies... meta reflections, etc...
+        throw new BindingResolutionException('TODO: Implement meta reflection and "auto" dependency injection');
+
+        // // Unlike PHP, JavaScript still does not have much to offer, when
+        // // it comes to class reflections. There is no way that we can tell
+        // // what kind of "types" might be expected on a concrete instance.
+        // // Therefore, the only way we can build the instance with the correct
+        // // dependencies (if any), is to check if some "meta data" has been
+        // // defined for the instance.
+        // //
+        // // But, we only do so, if empty params are given. This way, if the
+        // // developer desires to build an instance with a different set of
+        // // dependencies, then that should be allowed.
+        // //
+        // // Lastly, because we accept an object or an array, we need to
+        // // convert the params into an array, if an object was provided.
+        // if( ! Array.isArray(parameters)){
+        //     parameters = Object.keys(parameters).map(key => parameters[key]);
+        // }
+        //
+        // if(Meta.hasClass(concrete) && parameters.length == 0){
+        //     parameters = this.getDependencies(concrete);
+        // }
+        //
+        // // Finally, initiate the new instance
+        // return new concrete(...parameters);
+    }
+
+    /**
+     * Resolve concrete instance from given binding entry object
+     *
+     * @param {Binding} binding
+     * @param {...any} [params]
+     *
+     * @return {ConcreteInstance}
+     *
+     * @throws {BindingResolutionException}
+     *
+     * @protected
+     */
+    protected resolveFromBinding(binding: Binding, ...params: any[]): ConcreteInstance {
+        // If a concrete instance (of any kind) was bound, return it
+        if (!binding.isCallback) {
+            return binding.concrete;
+        }
+
+        // Otherwise, a callback must be invoked, with provided parameters
+        try {
+            return binding.concrete(this, ...params);
+        } catch (e) {
+            throw new BindingResolutionException('Unable to resolve binding "' + this.identifierToString(binding.abstract) + '", due to: ' + e.message);
+        }
+    }
+
+    /**
      * Set a binding in this container
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ConcreteInstance} [concrete]
+     * @param {FactoryCallback|ConcreteInstance} concrete
      * @param {boolean} [shared]
      * @param {boolean} [isCallback]
      *
@@ -243,13 +376,93 @@ export default class Container implements ContainerContract {
      */
     protected setBinding(
         abstract: BindingIdentifier,
-        concrete: FactoryCallback | ConcreteInstance = null,
+        concrete: FactoryCallback | ConcreteInstance,
         shared: boolean = false,
         isCallback: boolean = false
     ): void {
-        let binding = new BindingEntry(abstract, concrete, shared, isCallback);
+        this.bindings.set(
+            abstract,
+            this.makeBinding(abstract, concrete, shared, isCallback)
+        );
+    }
 
-        this.bindings.set(abstract, binding);
+    /**
+     * Creates a new binding entry object
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {FactoryCallback|ConcreteInstance} concrete
+     * @param {boolean} [shared]
+     * @param {boolean} [isCallback]
+     *
+     * @return {Binding}
+     *
+     * @protected
+     */
+    protected makeBinding(
+        abstract: BindingIdentifier,
+        concrete: FactoryCallback | ConcreteInstance,
+        shared: boolean = false,
+        isCallback: boolean = false
+    ): Binding {
+        return new BindingEntry(abstract, concrete, shared, isCallback);
+    }
+
+    /**
+     * Returns the "abstract" identifier associated
+     * with alias, if one exists. Otherwise given identifier
+     * is returned
+     *
+     * @param {BindingIdentifier} identifier
+     *
+     * @protected
+     *
+     * @return {BindingIdentifier} Abstract identifier or given identifier itself
+     */
+    protected resolveAbstract(identifier: BindingIdentifier): BindingIdentifier {
+        if (!this.aliases.has(identifier)) {
+            return identifier;
+        }
+
+        // @ts-ignore
+        return this.aliases.get(identifier);
+    }
+
+    /**
+     * Determine if given is a binding
+     *
+     * @param {any} binding
+     *
+     * @return {boolean}
+     *
+     * @protected
+     */
+    protected isBinding(binding: any): boolean {
+        // In the future, this might be replaced with a simple "instance of" check
+        return binding
+            && binding.hasOwnProperty('abstract')
+            && binding.hasOwnProperty('concrete')
+            && binding.hasOwnProperty('isCallback')
+            && binding.hasOwnProperty('shared');
+    }
+
+    /**
+     * Finds and returns binding for given identifier or fails
+     *
+     * NOTE: Method does NOT check for aliases!
+     *
+     * @param {BindingIdentifier} abstract
+     *
+     * @returns {Binding}
+     *
+     * @throws {NotFoundException} If unable to find binding for abstract
+     */
+    protected findBinding(abstract: BindingIdentifier): Binding {
+        if( ! this.bindings.has(abstract)){
+            throw new NotFoundException('No binding found for identifier: "' + this.identifierToString(abstract) + '"');
+        }
+
+        // @ts-ignore
+        return this.bindings.get(abstract);
     }
 
     /**
@@ -283,6 +496,31 @@ export default class Container implements ContainerContract {
         let type: string = typeof callback;
         if (type !== 'function') {
             throw new TypeError('Invalid factory callback. Expected a function, but got "' + type + '" instead');
+        }
+    }
+
+    /**
+     * Returns a string representation of the given binding identifier
+     *
+     * @param {BindingIdentifier} identifier
+     *
+     * @return {string}
+     *
+     * @protected
+     */
+    protected identifierToString(identifier: BindingIdentifier): string {
+        let type: string = typeof identifier;
+
+        switch (type) {
+            case 'string':
+                // @ts-ignore
+                return identifier;
+
+            case 'symbol':
+                return identifier.toString();
+
+            default:
+                return type;
         }
     }
 }

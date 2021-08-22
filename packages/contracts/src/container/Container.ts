@@ -117,7 +117,7 @@ export default interface Container {
      *
      * @throws {BindingException} If unable to resolve binding
      */
-    tryMake(abstract: BindingIdentifier, defaultInstance: ConcreteInstance, ...params: any[]): ConcreteInstance;
+    makeOrDefault(abstract: BindingIdentifier, defaultInstance: ConcreteInstance, ...params: any[]): ConcreteInstance;
 
     /**
      * Remove binding from this container

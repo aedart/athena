@@ -61,6 +61,7 @@ export default class Container implements ContainerContract {
      */
     static getInstance(): ContainerContract {
         if (this.instance === null || this.instance === undefined) {
+            // @ts-ignore
             return this.setInstance(new this());
         }
 
@@ -70,14 +71,26 @@ export default class Container implements ContainerContract {
     /**
      * Set the singleton instance of the container
      *
-     * @param {ContainerContract} container
+     * @param {ContainerContract|null} [container]
      *
-     * @return {ContainerContract}
+     * @return {ContainerContract|null}
      */
-    static setInstance(container: ContainerContract): ContainerContract {
+    static setInstance(container: ContainerContract | null = null): ContainerContract | null {
         this.instance = container;
 
         return this.instance;
+    }
+
+    /**
+     * Flush and destroy the current container singleton instance
+     */
+    static destroy(): void {
+        if (this.instance === null || this.instance === undefined) {
+            return;
+        }
+
+        this.instance.flush();
+        this.setInstance(null);
     }
 
     /**
@@ -512,12 +525,12 @@ export default class Container implements ContainerContract {
         let type: string = typeof identifier;
 
         switch (type) {
+            case 'symbol':
+                return identifier.toString();
+
             case 'string':
                 // @ts-ignore
                 return identifier;
-
-            case 'symbol':
-                return identifier.toString();
 
             default:
                 return type;

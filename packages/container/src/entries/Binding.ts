@@ -1,7 +1,7 @@
 import {
     Binding as BindingContract,
     BindingIdentifier,
-    ConcreteCallback,
+    FactoryCallback,
     ConcreteInstance
 } from "@aedart/contracts/dist/container";
 
@@ -24,7 +24,7 @@ export default class Binding implements BindingContract {
      *
      * @protected
      */
-    protected readonly concreteValue: ConcreteCallback | ConcreteInstance;
+    protected readonly concreteValue: FactoryCallback | ConcreteInstance;
 
     /**
      * State whether binding is shared or not
@@ -45,13 +45,13 @@ export default class Binding implements BindingContract {
      * Binding
      *
      * @param {BindingIdentifier} abstract
-     * @param {ConcreteCallback|ConcreteInstance} [concrete]
+     * @param {FactoryCallback|ConcreteInstance} [concrete]
      * @param {boolean} [shared]
      * @param {boolean} [isCallback]
      */
     constructor(
         abstract: BindingIdentifier,
-        concrete: ConcreteCallback | ConcreteInstance = null,
+        concrete: FactoryCallback | ConcreteInstance = null,
         shared: boolean = false,
         isCallback: boolean = false
     ) {
@@ -74,9 +74,9 @@ export default class Binding implements BindingContract {
      * Returns the concrete instance or callback associated
      * with the binding
      *
-     * @return {ConcreteCallback|ConcreteInstance}
+     * @return {FactoryCallback|ConcreteInstance}
      */
-    get concrete(): ConcreteCallback | ConcreteInstance {
+    get concrete(): FactoryCallback | ConcreteInstance {
         return this.concreteValue;
     }
 

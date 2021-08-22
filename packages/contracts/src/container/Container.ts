@@ -1,5 +1,5 @@
 import {
-    BindingIdentifier, ConcreteCallback,
+    BindingIdentifier, FactoryCallback,
     ConcreteInstance
 } from "./aliases";
 import Binding from "./entries/Binding";
@@ -38,7 +38,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, concrete: ConcreteCallback, shared: boolean): void;
+    bind(abstract: BindingIdentifier, concrete: FactoryCallback, shared: boolean): void;
 
     /**
      * Register a shared binding using a callback
@@ -48,7 +48,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, concrete: ConcreteCallback): void;
+    singleton(abstract: BindingIdentifier, concrete: FactoryCallback): void;
 
     /**
      * Register an existing instance as a shared binding

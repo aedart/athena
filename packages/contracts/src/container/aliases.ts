@@ -21,4 +21,4 @@ export type ConcreteInstance = any;
 /**
  * A callback method that must return a concrete instance
  */
-export type ConcreteCallback = (container: Container, ...params: any[]) => ConcreteInstance;
+export type FactoryCallback = (container: Container, ...params: any[]) => ConcreteInstance;

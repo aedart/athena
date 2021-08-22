@@ -5,7 +5,7 @@ import Binding from "./entries/Binding";
 import Container, { CONTAINER } from "./Container";
 import {
     BindingIdentifier,
-    ConcreteCallback,
+    FactoryCallback,
     ConcreteInstance
 } from "./aliases";
 
@@ -15,7 +15,7 @@ export {
     NotFoundException,
     Binding,
     BindingIdentifier,
-    ConcreteCallback,
+    FactoryCallback,
     ConcreteInstance,
     CONTAINER,
     Container as default

@@ -1,6 +1,6 @@
 import {
     BindingIdentifier,
-    ConcreteCallback,
+    FactoryCallback,
     ConcreteInstance
 } from "../aliases";
 
@@ -18,7 +18,7 @@ export default interface Binding {
      * Returns the concrete instance or callback associated
      * with the binding
      */
-    get concrete(): ConcreteCallback | ConcreteInstance;
+    get concrete(): FactoryCallback | ConcreteInstance;
 
     /**
      * Whether the concrete instance is a callback

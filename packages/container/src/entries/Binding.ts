@@ -45,13 +45,13 @@ export default class Binding implements BindingContract {
      * Binding
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ConcreteInstance} [concrete]
+     * @param {FactoryCallback|ConcreteInstance} concrete
      * @param {boolean} [shared]
      * @param {boolean} [isCallback]
      */
     constructor(
         abstract: BindingIdentifier,
-        concrete: FactoryCallback | ConcreteInstance = null,
+        concrete: FactoryCallback | ConcreteInstance,
         shared: boolean = false,
         isCallback: boolean = false
     ) {

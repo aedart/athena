@@ -105,25 +105,94 @@ export default class Container implements ContainerContract {
         return this.instancesMap;
     }
 
+    /**
+     * Register a binding using a callback
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {FactoryCallback} concrete
+     * @param {boolean} [shared] Whether binding is shared (singleton) or not
+     *
+     * @throws {TypeError}
+     */
     bind(abstract: BindingIdentifier, concrete: FactoryCallback, shared: boolean = false): void {
+        this.assertBindingIdentifier(abstract);
+        this.assertFactoryCallback(concrete);
+
+        this.setBinding(abstract, concrete, shared, true);
     }
 
+    /**
+     * Register a shared binding using a callback
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {FactoryCallback} concrete
+     *
+     * @throws {TypeError}
+     */
     singleton(abstract: BindingIdentifier, concrete: FactoryCallback): void {
+        this.assertBindingIdentifier(abstract);
+        this.assertFactoryCallback(concrete);
+
+        this.setBinding(abstract, concrete, true, true);
     }
 
+    /**
+     * Register an existing instance as a shared binding
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {ConcreteInstance} instance
+     *
+     * @throws {TypeError}
+     *
+     * @return {ConcreteInstance}
+     */
     instance(abstract: BindingIdentifier, instance: ConcreteInstance): ConcreteInstance {
-        return undefined;
+        this.assertBindingIdentifier(abstract);
+
+        this.setBinding(abstract, instance, true);
+
+        return instance;
     }
 
+    /**
+     * Define an alias for the given binding identifier
+     *
+     * @param {BindingIdentifier} abstract
+     * @param {BindingIdentifier} alias
+     *
+     * @throws {TypeError}
+     */
     alias(abstract: BindingIdentifier, alias: BindingIdentifier): void {
+        this.assertBindingIdentifier(abstract);
+        this.assertBindingIdentifier(alias);
+
+        if (abstract === alias) {
+            throw new TypeError('Unable to create binding alias to itself');
+        }
+
+        this.aliases.set(alias, abstract);
     }
 
+    /**
+     * Determine if a binding exists for given identifier
+     *
+     * @param {BindingIdentifier} abstract
+     *
+     * @return {boolean}
+     */
     has(abstract: BindingIdentifier): boolean {
-        return false;
+        return this.bindings.has(abstract) || this.instances.has(abstract) || this.aliases.has(abstract);
     }
 
+    /**
+     * Alias for {@link has} method
+     *
+     * @param {BindingIdentifier} abstract
+     *
+     * @return {boolean}
+     */
     bound(abstract: BindingIdentifier): boolean {
-        return false;
+        return this.has(abstract);
     }
 
     get(abstract: BindingIdentifier): ConcreteInstance {
@@ -181,5 +250,39 @@ export default class Container implements ContainerContract {
         let binding = new BindingEntry(abstract, concrete, shared, isCallback);
 
         this.bindings.set(abstract, binding);
+    }
+
+    /**
+     * Assert binding identifier
+     *
+     * @param {any} identifier
+     *
+     * @protected
+     *
+     * @throws {TypeError}
+     */
+    protected assertBindingIdentifier(identifier: any): void {
+        let allowed: string[] = ['function', 'symbol', 'string', 'object'];
+        let type: string = typeof identifier;
+
+        if (allowed.indexOf(type) === -1) {
+            throw new TypeError('Invalid binding identifier. Expected either of: ' + allowed.join(', ') + '. Got "' + type + '" instead');
+        }
+    }
+
+    /**
+     * Assert factory callback
+     *
+     * @param {any} callback
+     *
+     * @protected
+     *
+     * @throws {TypeError}
+     */
+    protected assertFactoryCallback(callback: any): void {
+        let type: string = typeof callback;
+        if (type !== 'function') {
+            throw new TypeError('Invalid factory callback. Expected a function, but got "' + type + '" instead');
+        }
     }
 }

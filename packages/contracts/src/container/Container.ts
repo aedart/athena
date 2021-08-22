@@ -38,7 +38,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, concrete?: ConcreteCallback, shared?: boolean): void;
+    bind(abstract: BindingIdentifier, concrete: ConcreteCallback, shared: boolean): void;
 
     /**
      * Register a shared binding using a callback
@@ -48,7 +48,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, concrete?: ConcreteCallback): void;
+    singleton(abstract: BindingIdentifier, concrete: ConcreteCallback): void;
 
     /**
      * Register an existing instance as a shared binding
@@ -58,7 +58,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    instance(abstract: BindingIdentifier, instance?: ConcreteInstance): ConcreteInstance;
+    instance(abstract: BindingIdentifier, instance: ConcreteInstance): ConcreteInstance;
 
     /**
      * Define an alias for the given binding identifier
@@ -117,7 +117,7 @@ export default interface Container {
      *
      * @throws {BindingException} If unable to resolve binding
      */
-    tryMake(abstract: BindingIdentifier, defaultInstance?: ConcreteInstance, ...params: any[]): ConcreteInstance;
+    tryMake(abstract: BindingIdentifier, defaultInstance: ConcreteInstance, ...params: any[]): ConcreteInstance;
 
     /**
      * Remove binding from this container

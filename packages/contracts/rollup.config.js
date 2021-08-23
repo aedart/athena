@@ -72,6 +72,7 @@ export default [
 
     // Export sub modules
     ...exportSubModule('container'),
+    ...exportSubModule('meta'),
 
     // Finally, clear the dts directory
     exportClearDtsFiles()

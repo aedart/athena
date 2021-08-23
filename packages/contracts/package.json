@@ -32,7 +32,8 @@
   "typesVersions": {
     "*": {
       "contracts": [ "dist/contracts.d.ts" ],
-      "container": [ "dist/container.d.ts" ]
+      "container": [ "dist/container.d.ts" ],
+      "meta": [ "dist/meta.d.ts" ]
     }
   },
   "scripts": {

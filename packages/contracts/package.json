@@ -26,8 +26,8 @@
     "dist"
   ],
   "exports": {
-    ".": "./dist/contracts.cjs.js",
-    "./*": "./dist/*.js"
+    ".": "./dist/contracts.umd.js",
+    "./dist/*": "./dist/*.umd.js"
   },
   "typesVersions": {
     "*": {

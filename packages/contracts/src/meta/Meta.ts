@@ -25,7 +25,7 @@ export default interface Meta {
      * @param data
      * @param type Optional meta type, e.g. a tag or category
      */
-    set(target: object, data: any, type?: MetaType): Meta;
+    set(target: object, data: any, type: MetaType): Meta;
 
     /**
      * Get arbitrary data for target
@@ -33,15 +33,15 @@ export default interface Meta {
      * @param target
      * @param type Optional meta type, e.g. a tag or category
      */
-    get(target: object, type?: MetaType): any | undefined;
+    get(target: object, type: MetaType): any | undefined;
 
     /**
      * Determine if target has arbitrary data
      *
      * @param target
-     * @param type
+     * @param type Optional meta type, e.g. a tag or category
      */
-    has(target: object, type?: MetaType): boolean;
+    has(target: object, type: MetaType): boolean;
 
     /**
      * Delete arbitrary data for target
@@ -49,7 +49,7 @@ export default interface Meta {
      * @param target
      * @param type Optional meta type, e.g. a tag or category
      */
-    forget(target: object, type?: MetaType): boolean;
+    forget(target: object, type: MetaType): boolean;
 
     /**
      * Delete all arbitrary data for target

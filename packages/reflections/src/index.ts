@@ -1,5 +1,12 @@
 import DependenciesReflector from "./dependencies/DependenciesReflector";
+import {
+    classDependsOn,
+    dependsOn
+} from "./dependencies/decorators";
 
 export {
-    DependenciesReflector
+    // (Meta) Dependencies Reflector
+    DependenciesReflector,
+    classDependsOn,
+    dependsOn
 }

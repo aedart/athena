@@ -5,16 +5,17 @@ import {
 import Meta from "@aedart/meta";
 
 /**
- * Meta Type
+ * Meta Type to be used for storing meta information
+ * about a target's dependencies
  *
- * @see {MetaType}
+ * @see MetaType
  */
 export const DEPENDENCIES_META_TYPE = Symbol('dependencies');
 
 /**
  * Dependencies Reflector
  *
- * @see {DependenciesReflectorContract}
+ * @see DependenciesReflectorContract
  */
 export default class DependenciesReflector implements DependenciesReflectorContract {
 

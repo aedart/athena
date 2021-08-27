@@ -33,7 +33,8 @@
     "*": {
       "contracts": [ "dist/contracts.d.ts" ],
       "container": [ "dist/container.d.ts" ],
-      "meta": [ "dist/meta.d.ts" ]
+      "meta": [ "dist/meta.d.ts" ],
+      "reflections": [ "dist/reflections.d.ts" ]
     }
   },
   "scripts": {

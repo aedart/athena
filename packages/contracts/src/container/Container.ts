@@ -120,6 +120,16 @@ export default interface Container {
     makeOrDefault(abstract: BindingIdentifier, defaultInstance: ConcreteInstance, ...params: any[]): ConcreteInstance;
 
     /**
+     * Builds a concrete instance from given binding or class constructor reference
+     *
+     * @param concrete
+     * @param params
+     *
+     * @throws {BindingResolutionException}
+     */
+    build(concrete: Function | Binding, ...params: any[]): ConcreteInstance;
+
+    /**
      * Remove binding from this container
      *
      * @param abstract

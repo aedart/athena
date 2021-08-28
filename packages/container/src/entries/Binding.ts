@@ -2,7 +2,7 @@ import {
     Binding as BindingContract,
     BindingIdentifier,
     FactoryCallback,
-    ConcreteInstance
+    ClassReference,
 } from "@aedart/contracts/dist/container";
 
 /**
@@ -24,7 +24,7 @@ export default class Binding implements BindingContract {
      *
      * @protected
      */
-    protected readonly concreteValue: FactoryCallback | ConcreteInstance;
+    protected readonly concreteValue: FactoryCallback | ClassReference<any>;
 
     /**
      * State whether binding is shared or not
@@ -45,13 +45,13 @@ export default class Binding implements BindingContract {
      * Binding
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ConcreteInstance} concrete
+     * @param {FactoryCallback|ClassReference<any>} concrete
      * @param {boolean} [shared]
      * @param {boolean} [isCallback]
      */
     constructor(
         abstract: BindingIdentifier,
-        concrete: FactoryCallback | ConcreteInstance,
+        concrete: FactoryCallback | ClassReference<any>,
         shared: boolean = false,
         isCallback: boolean = false
     ) {
@@ -74,9 +74,9 @@ export default class Binding implements BindingContract {
      * Returns the concrete instance or callback associated
      * with the binding
      *
-     * @return {FactoryCallback|ConcreteInstance}
+     * @return {FactoryCallback|ClassReference<any>}
      */
-    get concrete(): FactoryCallback | ConcreteInstance {
+    get concrete(): FactoryCallback | ClassReference<any> {
         return this.concreteValue;
     }
 
@@ -89,6 +89,15 @@ export default class Binding implements BindingContract {
      */
     get isCallback(): boolean {
         return this.isOfTypeCallback;
+    }
+
+    /**
+     * Whether the concrete is a class reference or not
+     *
+     * @return {boolean}
+     */
+    get isClassReference(): boolean {
+        return !this.isCallback;
     }
 
     /**

@@ -4,6 +4,7 @@ import NotFoundException from "./exceptions/NotFoundException";
 import Binding from "./entries/Binding";
 import Container, { CONTAINER } from "./Container";
 import {
+    ClassReference,
     BindingIdentifier,
     FactoryCallback,
     ConcreteInstance
@@ -14,6 +15,7 @@ export {
     BindingException,
     NotFoundException,
     Binding,
+    ClassReference,
     BindingIdentifier,
     FactoryCallback,
     ConcreteInstance,

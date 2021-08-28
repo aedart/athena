@@ -1,6 +1,11 @@
 import Container from "./Container";
 
 /**
+ * A class reference
+ */
+export type ClassReference<T> = new (...args: any[]) => T;
+
+/**
  * A binding identifier (also known as "abstract") can consist
  * of several types; a string, a symbol or perhaps a function.
  *
@@ -9,7 +14,7 @@ import Container from "./Container";
  *
  * @see ConcreteInstance
  */
-export type BindingIdentifier = string | Function | symbol | object;
+export type BindingIdentifier = string | Function | symbol | object | ClassReference<any>;
 
 /**
  * The concrete instance of a binding

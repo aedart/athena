@@ -1,7 +1,7 @@
 import {
     BindingIdentifier,
     FactoryCallback,
-    ConcreteInstance
+    ClassReference,
 } from "../aliases";
 
 /**
@@ -15,17 +15,20 @@ export default interface Binding {
     get abstract(): BindingIdentifier;
 
     /**
-     * Returns the concrete instance or callback associated
-     * with the binding
+     * Returns the callback to be invoked or reference to class that must be
+     * instantiated
      */
-    get concrete(): FactoryCallback | ConcreteInstance;
+    get concrete(): FactoryCallback | ClassReference<any>;
 
     /**
-     * Whether the concrete instance is a callback
-     * that must be invoked by the container, to resolve
-     * the concrete instance.
+     * Whether the concrete is a callback or not
      */
     get isCallback(): boolean;
+
+    /**
+     * Whether the concrete is a class reference or not
+     */
+    get isClassReference(): boolean;
 
     /**
      * Whether this binding acts as a shared or not.

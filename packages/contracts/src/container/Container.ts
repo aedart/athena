@@ -1,6 +1,6 @@
 import {
     BindingIdentifier, FactoryCallback,
-    ConcreteInstance
+    ConcreteInstance, ClassReference
 } from "./aliases";
 import Binding from "./entries/Binding";
 
@@ -41,6 +41,17 @@ export default interface Container {
     bind(abstract: BindingIdentifier, concrete: FactoryCallback, shared: boolean): void;
 
     /**
+     * Register a binding using a class reference
+     *
+     * @param abstract
+     * @param reference
+     * @param shared Whether binding is shared (singleton) or not
+     *
+     * @throws {TypeError}
+     */
+    bindClass(abstract: BindingIdentifier, reference: ClassReference<any>, shared: boolean): void
+
+    /**
      * Register a shared binding using a callback
      *
      * @param abstract
@@ -49,6 +60,16 @@ export default interface Container {
      * @throws {TypeError}
      */
     singleton(abstract: BindingIdentifier, concrete: FactoryCallback): void;
+
+    /**
+     * Register a shared binding using a class reference
+     *
+     * @param abstract
+     * @param reference
+     *
+     * @throws {TypeError}
+     */
+    singletonClass(abstract: BindingIdentifier, reference: ClassReference<any>): void
 
     /**
      * Register an existing instance as a shared binding
@@ -127,7 +148,7 @@ export default interface Container {
      *
      * @throws {BindingResolutionException}
      */
-    build(target: Function | Binding, ...params: any[]): ConcreteInstance;
+    build(target: ClassReference<any> | Binding, ...params: any[]): ConcreteInstance;
 
     /**
      * Remove binding from this container

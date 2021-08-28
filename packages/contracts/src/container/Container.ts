@@ -122,12 +122,12 @@ export default interface Container {
     /**
      * Builds a concrete instance from given binding or class constructor reference
      *
-     * @param concrete
+     * @param target
      * @param params
      *
      * @throws {BindingResolutionException}
      */
-    build(concrete: Function | Binding, ...params: any[]): ConcreteInstance;
+    build(target: Function | Binding, ...params: any[]): ConcreteInstance;
 
     /**
      * Remove binding from this container

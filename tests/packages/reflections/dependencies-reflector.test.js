@@ -1,6 +1,6 @@
 import { DependenciesReflector } from "@aedart/reflections";
 
-fdescribe('@aedart/reflections', () => {
+describe('@aedart/reflections', () => {
 
     describe('Dependencies Reflector', () => {
 

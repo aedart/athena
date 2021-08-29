@@ -5,7 +5,7 @@ import {
 } from "../aliases";
 
 /**
- * Binding
+ * Binding Entry
  */
 export default interface Binding {
 
@@ -16,17 +16,21 @@ export default interface Binding {
 
     /**
      * Returns the callback to be invoked or reference to class that must be
-     * instantiated
+     * instantiated, when requested from a service container
      */
-    get concrete(): FactoryCallback | ClassReference<any>;
+    get value(): FactoryCallback | ClassReference<any>;
 
     /**
-     * Whether the concrete is a callback or not
+     * Whether the binding value is a factory callback or not
+     *
+     * @see isClassReference
      */
-    get isCallback(): boolean;
+    get isFactoryCallback(): boolean;
 
     /**
-     * Whether the concrete is a class reference or not
+     * Whether the binding value is a class reference or not
+     *
+     * @see isFactoryCallback
      */
     get isClassReference(): boolean;
 

@@ -1,12 +1,11 @@
-import { BindingException } from "@aedart/contracts/dist/container";
-import ContainerException from "./ContainerException";
+import BindingException from "./BindingException"
 
 /**
  * Binding Resolution Exception
  *
  * @see BindingException
  */
-export default class BindingResolutionException extends ContainerException implements BindingException {
+export default class BindingResolutionException extends BindingException {
 
     /**
      * BindingResolutionException

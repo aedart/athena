@@ -4,6 +4,11 @@ import {
     FactoryCallback,
     ClassReference,
 } from "@aedart/contracts/dist/container";
+import {
+    assertBindingIdentifier,
+    assertBindingValue
+} from "./assertions";
+import { Reflector } from "@aedart/reflections";
 
 /**
  * Binding
@@ -34,31 +39,26 @@ export default class Binding implements BindingContract {
     protected readonly isShared: boolean;
 
     /**
-     * State whether binding's concrete value is of type callback
-     * or not
-     *
-     * @protected
-     */
-    protected readonly isOfTypeCallback: boolean;
-
-    /**
      * Binding
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ClassReference<any>} concrete
+     * @param {FactoryCallback|ClassReference<any>} value
      * @param {boolean} [shared]
-     * @param {boolean} [isCallback]
+     *
+     * @throws {InvalidBindingIdentifier}
+     * @throws {InvalidBindingValue}
      */
     constructor(
         abstract: BindingIdentifier,
-        concrete: FactoryCallback | ClassReference<any>,
+        value: FactoryCallback | ClassReference<any>,
         shared: boolean = false,
-        isCallback: boolean = false
     ) {
+        this.assertBindingIdentifier(abstract);
+        this.assertBindingValue(value);
+
         this.abstractIdentifier = abstract;
-        this.concreteValue = concrete;
+        this.concreteValue = value;
         this.isShared = shared;
-        this.isOfTypeCallback = isCallback;
     }
 
     /**
@@ -71,33 +71,35 @@ export default class Binding implements BindingContract {
     }
 
     /**
-     * Returns the concrete instance or callback associated
-     * with the binding
+     * Returns the callback to be invoked or reference to class that must be
+     * instantiated, when requested from a service container
      *
      * @return {FactoryCallback|ClassReference<any>}
      */
-    get concrete(): FactoryCallback | ClassReference<any> {
+    get value(): FactoryCallback | ClassReference<any> {
         return this.concreteValue;
     }
 
     /**
-     * Whether the concrete instance is a callback
-     * that must be invoked by the container, to resolve
-     * the concrete instance.
+     * Whether the binding value is a factory callback or not
+     *
+     * @see isClassReference
      *
      * @return {boolean}
      */
-    get isCallback(): boolean {
-        return this.isOfTypeCallback;
+    get isFactoryCallback(): boolean {
+        return !this.isClassReference;
     }
 
     /**
-     * Whether the concrete is a class reference or not
+     * Whether the binding value is a class reference or not
+     *
+     * @see isFactoryCallback
      *
      * @return {boolean}
      */
     get isClassReference(): boolean {
-        return !this.isCallback;
+        return Reflector.isClass(this.value);
     }
 
     /**
@@ -110,5 +112,35 @@ export default class Binding implements BindingContract {
      */
     get shared(): boolean {
         return this.isShared;
+    }
+
+    /*****************************************************************
+     * Internals
+     ****************************************************************/
+
+    /**
+     * Assert binding identifier
+     *
+     * @param {any} identifier
+     *
+     * @protected
+     *
+     * @throws {InvalidBindingIdentifier}
+     */
+    protected assertBindingIdentifier(identifier: any): void {
+        assertBindingIdentifier(identifier);
+    }
+
+    /**
+     * Assert binding value
+     *
+     * @param {any} value
+     *
+     * @protected
+     *
+     * @throws {InvalidBindingValue}
+     */
+    protected assertBindingValue(value: any) {
+        assertBindingValue(value);
     }
 }

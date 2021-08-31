@@ -17,6 +17,17 @@ export default class Reflector {
     protected static classDeterminationCallback?: ClassDeterminationCallback;
 
     /**
+     * Cache for "is class" method results.
+     *
+     * NOTE: Only functions / objects are cached, using a
+     * weak-map, to limit the memory usage as much as
+     * possible.
+     *
+     * @protected
+     */
+    protected static isClassCache: WeakMap<Function|object, boolean> = new WeakMap<Function | object, boolean>();
+
+    /**
      * Determine if given target is callable
      *
      * @param {any} target
@@ -39,13 +50,31 @@ export default class Reflector {
      * @see defaultClassDeterminationCallback
      *
      * @param {any} target
+     * @param {boolean} [force] When true, method will force determine if target is
+     *                          a class reference and ignored previous cached result (if any)
      *
      * @return {boolean}
      */
-    static isClass(target: any): boolean {
-        let resolver: ClassDeterminationCallback = this.resolveClassDeterminationCallback();
+    static isClass(target: any, force: boolean = false): boolean {
+        // Check if previously already resolved for given target.
+        // NOTE: this is only possible for functions / objects.
+        let type: string = typeof target;
+        let isCacheable: boolean = target !== null && (type === 'function' || type === 'object');
 
-        return resolver(target);
+        if (!force && isCacheable && this.isClassCache.has(target)) {
+            // @ts-ignore
+            return this.isClassCache.get(target);
+        }
+
+        // Resolve whether or not target is a class references and cache
+        // the result - if possible.
+        let resolver: ClassDeterminationCallback = this.resolveClassDeterminationCallback();
+        let result: boolean = resolver(target);
+        if (isCacheable) {
+            this.isClassCache.set(target, result);
+        }
+
+        return result;
     }
 
     /**

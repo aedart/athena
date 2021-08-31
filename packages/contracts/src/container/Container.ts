@@ -1,6 +1,8 @@
 import {
-    BindingIdentifier, FactoryCallback,
-    ConcreteInstance, ClassReference
+    BindingIdentifier,
+    FactoryCallback,
+    ConcreteInstance,
+    ClassReference
 } from "./aliases";
 import Binding from "./entries/Binding";
 
@@ -33,43 +35,22 @@ export default interface Container {
      * Register a binding using a callback
      *
      * @param abstract
-     * @param concrete
+     * @param value
      * @param shared Whether binding is shared (singleton) or not
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, concrete: FactoryCallback, shared: boolean): void;
-
-    /**
-     * Register a binding using a class reference
-     *
-     * @param abstract
-     * @param reference
-     * @param shared Whether binding is shared (singleton) or not
-     *
-     * @throws {TypeError}
-     */
-    bindClass(abstract: BindingIdentifier, reference: ClassReference<any>, shared: boolean): void
+    bind(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>, shared: boolean): Container;
 
     /**
      * Register a shared binding using a callback
      *
      * @param abstract
-     * @param concrete
+     * @param value
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, concrete: FactoryCallback): void;
-
-    /**
-     * Register a shared binding using a class reference
-     *
-     * @param abstract
-     * @param reference
-     *
-     * @throws {TypeError}
-     */
-    singletonClass(abstract: BindingIdentifier, reference: ClassReference<any>): void
+    singleton(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>): Container;
 
     /**
      * Register an existing instance as a shared binding
@@ -89,7 +70,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    alias(abstract: BindingIdentifier, alias: BindingIdentifier): void;
+    alias(abstract: BindingIdentifier, alias: BindingIdentifier): Container;
 
     /**
      * Determine if a binding exists for given identifier
@@ -110,8 +91,7 @@ export default interface Container {
      *
      * @param abstract
      *
-     * @throws {NotFoundException} If no concrete instance was found for given identifier
-     * @throws {ContainerException} If unable to resolve binding
+     * @throws {BindingException} If unable to resolve binding
      */
     get(abstract: BindingIdentifier): ConcreteInstance;
 
@@ -121,7 +101,6 @@ export default interface Container {
      * @param abstract
      * @param params Eventual parameters to be passed onto the binding
      *
-     * @throws {NotFoundException} If no concrete instance was found for given identifier
      * @throws {BindingException} If unable to resolve binding
      */
     make(abstract: BindingIdentifier, ...params: any[]): ConcreteInstance;

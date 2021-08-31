@@ -1,12 +1,15 @@
 import ContainerContract, {
     BindingIdentifier,
+    ClassReference,
     FactoryCallback,
     ConcreteInstance,
     Binding
 } from "@aedart/contracts/dist/container";
+import { DependenciesReflector as DependenciesReflectorContract  } from "@aedart/contracts/dist/reflections";
+import {DependenciesReflector, Reflector} from "@aedart/reflections";
 import BindingResolutionException from "./exceptions/BindingResolutionException";
-import NotFoundException from "./exceptions/NotFoundException";
 import BindingEntry from "./entries/Binding";
+import { assertBindingIdentifier } from "./entries/assertions";
 
 /**
  * Service Container
@@ -44,6 +47,13 @@ export default class Container implements ContainerContract {
      * @protected
      */
     protected instancesMap: Map<BindingIdentifier, ConcreteInstance>;
+
+    /**
+     * Dependencies Reflector
+     *
+     * @protected
+     */
+    protected dependencyReflector?: DependenciesReflectorContract;
 
     /**
      * Container
@@ -124,31 +134,33 @@ export default class Container implements ContainerContract {
      * Register a binding using a callback
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback} concrete
+     * @param {FactoryCallback|ClassReference<any>} value
      * @param {boolean} [shared] Whether binding is shared (singleton) or not
+     *
+     * @return {ContainerContract}
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, concrete: FactoryCallback, shared: boolean = false): void {
-        this.assertBindingIdentifier(abstract);
-        this.assertFactoryCallback(concrete);
+    bind(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>, shared: boolean = false): ContainerContract {
+        this.setBinding(abstract, value, shared);
 
-        this.setBinding(abstract, concrete, shared, true);
+        // @ts-ignore
+        return this;
     }
+
 
     /**
      * Register a shared binding using a callback
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback} concrete
+     * @param {FactoryCallback|ClassReference<any>} value
+     *
+     * @return {ContainerContract}
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, concrete: FactoryCallback): void {
-        this.assertBindingIdentifier(abstract);
-        this.assertFactoryCallback(concrete);
-
-        this.setBinding(abstract, concrete, true, true);
+    singleton(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>): ContainerContract {
+        return this.bind(abstract, value, true);
     }
 
     /**
@@ -164,7 +176,8 @@ export default class Container implements ContainerContract {
     instance(abstract: BindingIdentifier, instance: ConcreteInstance): ConcreteInstance {
         this.assertBindingIdentifier(abstract);
 
-        this.setBinding(abstract, instance, true);
+        // Set (or overwrite) the instance
+        this.instances.set(abstract, instance);
 
         return instance;
     }
@@ -175,9 +188,11 @@ export default class Container implements ContainerContract {
      * @param {BindingIdentifier} abstract
      * @param {BindingIdentifier} alias
      *
+     * @return {ContainerContract}
+     *
      * @throws {TypeError}
      */
-    alias(abstract: BindingIdentifier, alias: BindingIdentifier): void {
+    alias(abstract: BindingIdentifier, alias: BindingIdentifier): ContainerContract {
         this.assertBindingIdentifier(abstract);
         this.assertBindingIdentifier(alias);
 
@@ -186,6 +201,9 @@ export default class Container implements ContainerContract {
         }
 
         this.aliases.set(alias, abstract);
+
+        // @ts-ignore
+        return this;
     }
 
     /**
@@ -196,7 +214,9 @@ export default class Container implements ContainerContract {
      * @return {boolean}
      */
     has(abstract: BindingIdentifier): boolean {
-        return this.bindings.has(abstract) || this.instances.has(abstract) || this.aliases.has(abstract);
+        return this.bindings.has(abstract)
+            || this.instances.has(abstract)
+            || this.aliases.has(abstract);
     }
 
     /**
@@ -217,8 +237,7 @@ export default class Container implements ContainerContract {
      *
      * @return {ConcreteInstance}
      *
-     * @throws {NotFoundException} If no concrete instance was found for given identifier
-     * @throws {ContainerException} If unable to resolve binding
+     * @throws {BindingException} If unable to resolve binding
      */
     get(abstract: BindingIdentifier): ConcreteInstance {
         return this.make(abstract);
@@ -232,7 +251,6 @@ export default class Container implements ContainerContract {
      *
      * @return {ConcreteInstance}
      *
-     * @throws {NotFoundException} If no concrete instance was found for given identifier
      * @throws {BindingException} If unable to resolve binding
      */
     make(abstract: BindingIdentifier, ...params: any[]): ConcreteInstance {
@@ -244,17 +262,23 @@ export default class Container implements ContainerContract {
             return this.instances.get(abstract);
         }
 
-        // Find binding entry object - or fail
-        let binding = this.findBinding(abstract);
+        let binding: Binding | undefined = this.bindings.get(abstract);
 
-        // Attempt to build concrete instance from binding
-        let instance = this.build(binding, ...params);
+        // When no binding is matched, but given abstract is a buildable class,
+        // then build it. Otherwise fail...
+        if (binding === undefined && this.isBuildable(abstract)) {
+            return this.build(abstract as ClassReference<any>, ...params);
+        } else if (binding === undefined) {
+            throw new BindingResolutionException('Unable to resolve abstract, no matching binding found and abstract is not buildable (not a class reference)');
+        }
 
-        // Set instance, if binding entry is marked as "shared"
-        if(binding.shared){
+        // Build the binding and set instance, if binding entry is marked as "shared"
+        let instance: ConcreteInstance = this.build(binding, ...params);
+        if (binding.shared) {
             this.instances.set(abstract, instance);
         }
 
+        // Finally, return the resolved instance
         return instance;
     }
 
@@ -273,11 +297,58 @@ export default class Container implements ContainerContract {
      * @throws {BindingException} If unable to resolve binding
      */
     makeOrDefault(abstract: BindingIdentifier, defaultInstance: ConcreteInstance = null, ...params: any[]): ConcreteInstance {
-        if (!this.has(abstract)) {
+        if (!this.has(abstract) && !this.isBuildable(abstract)) {
             return defaultInstance;
         }
 
         return this.make(abstract, ...params);
+    }
+
+    /**
+     * Builds a concrete instance from given binding or class constructor reference
+     *
+     * @param {ClassReference<any>|Binding} target
+     * @param {...any} [params]
+     *
+     * @return {ConcreteInstance}
+     *
+     * @throws {BindingResolutionException}
+     */
+    build(target: ClassReference<any> | Binding, ...params: any[]): ConcreteInstance {
+        // Abort when no target given
+        if (!target) {
+            throw new BindingResolutionException('Unable to build, no target binding or class reference given');
+        }
+
+        // When target is a binding and of the type factory callback, then resolve
+        // it by invoking the callback with given parameters.
+        if (this.isBinding(target) && (target as Binding).isFactoryCallback) {
+            return this.resolveBindingCallback((target as Binding), ...params);
+        }
+
+        // When target is a binding of the type calls reference,
+        // then set the target to the binding's value so it can be resolved.
+        if (this.isBinding(target)) {
+            target = (target as Binding).value as ClassReference<any>;
+        }
+
+        // Fail in case that target is not buildable (in case that target was not
+        // a binding)
+        if (!this.isBuildable(target)) {
+            throw new BindingResolutionException('Target is not buildable (not a class reference)');
+        }
+
+        // At this point, we are sure that the target is a class reference
+        // and must be instantiated. But, we need to deal with eventual
+        // dependencies. Therefore, when - and only when - no parameters
+        // are provided, we must attempt to resolve eventual dependencies
+        // by means of meta information, if it's available for the target.
+        if (params.length === 0 && this.reflector.has(target)) {
+            params = this.resolveDependencies(target as ClassReference<any>);
+        }
+
+        // Finally, create a new instance with the given or resolved params
+        return new (target as ClassReference<any>)(...params);
     }
 
     /**
@@ -300,59 +371,44 @@ export default class Container implements ContainerContract {
         this.instances.clear();
     }
 
+    /**
+     * Set the dependency reflector this container must use
+     *
+     * @param {DependenciesReflectorContract} reflector
+     */
+    set reflector(reflector: DependenciesReflectorContract ) {
+        this.dependencyReflector = reflector;
+    }
+
+    /**
+     * Get the dependency reflector this container uses
+     *
+     * @return {DependenciesReflectorContract}
+     */
+    get reflector(): DependenciesReflectorContract {
+        if (!this.dependencyReflector) {
+            this.reflector = this.makeDefaultReflector();
+        }
+
+        // @ts-ignore
+        return this.dependencyReflector;
+    }
+
     /*****************************************************************
      * Internals
      ****************************************************************/
 
     /**
-     * Builds a concrete instance from given binding or function
-     *
-     * @param {Function|Binding} concrete
-     * @param {...any} [params]
-     *
-     * @return {ConcreteInstance}
-     *
-     * @throws {BindingResolutionException}
+     * Returns a default dependencies reflector
      *
      * @protected
      */
-    protected build(concrete: Function | Binding, ...params: any[]): ConcreteInstance {
-        // Resolve from binding entry object, if that is provided
-        if (this.isBinding(concrete)) {
-            // @ts-ignore
-            return this.resolveFromBinding(concrete, ...params);
-        }
-
-        // TODO: Resolve dependencies... meta reflections, etc...
-        throw new BindingResolutionException('TODO: Implement meta reflection and "auto" dependency injection');
-
-        // // Unlike PHP, JavaScript still does not have much to offer, when
-        // // it comes to class reflections. There is no way that we can tell
-        // // what kind of "types" might be expected on a concrete instance.
-        // // Therefore, the only way we can build the instance with the correct
-        // // dependencies (if any), is to check if some "meta data" has been
-        // // defined for the instance.
-        // //
-        // // But, we only do so, if empty params are given. This way, if the
-        // // developer desires to build an instance with a different set of
-        // // dependencies, then that should be allowed.
-        // //
-        // // Lastly, because we accept an object or an array, we need to
-        // // convert the params into an array, if an object was provided.
-        // if( ! Array.isArray(parameters)){
-        //     parameters = Object.keys(parameters).map(key => parameters[key]);
-        // }
-        //
-        // if(Meta.hasClass(concrete) && parameters.length == 0){
-        //     parameters = this.getDependencies(concrete);
-        // }
-        //
-        // // Finally, initiate the new instance
-        // return new concrete(...parameters);
+    protected makeDefaultReflector(): DependenciesReflectorContract {
+        return new DependenciesReflector();
     }
 
     /**
-     * Resolve concrete instance from given binding entry object
+     * Invokes the binding callback and returns the resulting concrete instance
      *
      * @param {Binding} binding
      * @param {...any} [params]
@@ -363,18 +419,25 @@ export default class Container implements ContainerContract {
      *
      * @protected
      */
-    protected resolveFromBinding(binding: Binding, ...params: any[]): ConcreteInstance {
-        // If a concrete instance (of any kind) was bound, return it
-        if (!binding.isCallback) {
-            return binding.concrete;
-        }
-
-        // Otherwise, a callback must be invoked, with provided parameters
+    protected resolveBindingCallback(binding: Binding, ...params: any[]): ConcreteInstance {
         try {
-            return binding.concrete(this, ...params);
+            return (binding.value as FactoryCallback)(this, ...params);
         } catch (e) {
             throw new BindingResolutionException('Unable to resolve binding "' + this.identifierToString(binding.abstract) + '", due to: ' + e.message);
         }
+    }
+
+    /**
+     * Determine if target is a buildable class
+     *
+     * @param {any} target
+     *
+     * @return {boolean}
+     *
+     * @protected
+     */
+    protected isBuildable(target: any): boolean {
+        return Reflector.isClass(target);
     }
 
     /**
@@ -383,19 +446,17 @@ export default class Container implements ContainerContract {
      * @param {BindingIdentifier} abstract
      * @param {FactoryCallback|ConcreteInstance} concrete
      * @param {boolean} [shared]
-     * @param {boolean} [isCallback]
      *
      * @protected
      */
     protected setBinding(
         abstract: BindingIdentifier,
         concrete: FactoryCallback | ConcreteInstance,
-        shared: boolean = false,
-        isCallback: boolean = false
+        shared: boolean = false
     ): void {
         this.bindings.set(
             abstract,
-            this.makeBinding(abstract, concrete, shared, isCallback)
+            this.makeBinding(abstract, concrete, shared)
         );
     }
 
@@ -405,7 +466,6 @@ export default class Container implements ContainerContract {
      * @param {BindingIdentifier} abstract
      * @param {FactoryCallback|ConcreteInstance} concrete
      * @param {boolean} [shared]
-     * @param {boolean} [isCallback]
      *
      * @return {Binding}
      *
@@ -415,9 +475,8 @@ export default class Container implements ContainerContract {
         abstract: BindingIdentifier,
         concrete: FactoryCallback | ConcreteInstance,
         shared: boolean = false,
-        isCallback: boolean = false
     ): Binding {
-        return new BindingEntry(abstract, concrete, shared, isCallback);
+        return new BindingEntry(abstract, concrete, shared);
     }
 
     /**
@@ -459,23 +518,61 @@ export default class Container implements ContainerContract {
     }
 
     /**
-     * Finds and returns binding for given identifier or fails
+     * Resolve dependencies for given target.
      *
-     * NOTE: Method does NOT check for aliases!
+     * Method will attempt to obtain dependencies meta information and resolve
+     * each identified dependency.
      *
-     * @param {BindingIdentifier} abstract
+     * @see reflector
      *
-     * @returns {Binding}
+     * @param {ClassReference<any>|Function} target
      *
-     * @throws {NotFoundException} If unable to find binding for abstract
+     * @return {any[]} List of resolved dependencies
+     *
+     * @throws {BindingResolutionException} If unable to resolve a dependency
+     *
+     * @protected
      */
-    protected findBinding(abstract: BindingIdentifier): Binding {
-        if( ! this.bindings.has(abstract)){
-            throw new NotFoundException('No binding found for identifier: "' + this.identifierToString(abstract) + '"');
-        }
+    protected resolveDependencies(target: ClassReference<any> | Function): any[] {
+        // Obtain list of binding identifiers that might be stored as meta information
+        // for given target - empty list is returned when none have been defined.
+        let dependencies: BindingIdentifier[] = this.reflector.get(target);
 
-        // @ts-ignore
-        return this.bindings.get(abstract);
+        // Resolve each of the found identifiers. Should the make method fail,
+        // then we need to capture and re-throw the binding exception, with an
+        // accurate message about what binding failed.
+        let resolved: any[] = [];
+        dependencies.forEach((identifier: BindingIdentifier) => {
+            resolved.push(this.resolveDependency(identifier, target));
+        });
+
+        // Finally, return all resolved dependencies
+        return resolved;
+    }
+
+    /**
+     * Resolve a single identified dependency for given target
+     *
+     * @param {BindingIdentifier} dependency Binding identifier resolved from a "dependency reflector"
+     * @param {ClassReference<any>|Function} target
+     *
+     * @return {any}
+     *
+     * @throws {BindingResolutionException} If unable to resolve given dependency
+     *
+     * @protected
+     */
+    protected resolveDependency(dependency: BindingIdentifier, target: ClassReference<any> | Function): any {
+        try {
+            return this.make(dependency);
+        } catch (e) {
+            let id = dependency;
+            if (typeof id === 'symbol') {
+                id = id.toString();
+            }
+
+            throw new BindingResolutionException(`Unable to resolve dependency "${id}" for ${target}: ${e.message}`);
+        }
     }
 
     /**
@@ -485,31 +582,10 @@ export default class Container implements ContainerContract {
      *
      * @protected
      *
-     * @throws {TypeError}
+     * @throws {InvalidBindingIdentifier}
      */
     protected assertBindingIdentifier(identifier: any): void {
-        let allowed: string[] = ['function', 'symbol', 'string', 'object'];
-        let type: string = typeof identifier;
-
-        if (allowed.indexOf(type) === -1) {
-            throw new TypeError('Invalid binding identifier. Expected either of: ' + allowed.join(', ') + '. Got "' + type + '" instead');
-        }
-    }
-
-    /**
-     * Assert factory callback
-     *
-     * @param {any} callback
-     *
-     * @protected
-     *
-     * @throws {TypeError}
-     */
-    protected assertFactoryCallback(callback: any): void {
-        let type: string = typeof callback;
-        if (type !== 'function') {
-            throw new TypeError('Invalid factory callback. Expected a function, but got "' + type + '" instead');
-        }
+        assertBindingIdentifier(identifier);
     }
 
     /**

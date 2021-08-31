@@ -79,9 +79,11 @@ describe('@aedart/container', () => {
             };
 
             expect(whenNull)
+                .withContext('Should fail when binding value is null')
                 .toThrowError(InvalidBindingValue);
 
             expect(whenInvalid)
+                .withContext('Should fail when binding value is invalid')
                 .toThrowError(InvalidBindingValue);
         });
     });

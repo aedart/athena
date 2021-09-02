@@ -1,7 +1,7 @@
 {
-  "name": "@aedart/contracts",
+  "name": "@aedart/support",
   "version": "0.0.0",
-  "description": "Athena contracts package",
+  "description": "Athena Support package",
   "author": "Alin Eugen Deac <aedart@gmail.com>",
   "homepage": "https://github.com/aedart/athena/tree/main/packages/alpha#readme",
   "license": "BSD-3-Clause",
@@ -15,34 +15,24 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/contracts.cjs.js",
-  "module": "dist/contracts.esm.js",
-  "browser": "dist/contracts.umd.js",
-  "types": "dist/contracts.d.ts",
+  "main": "dist/support.cjs.js",
+  "module": "dist/support.esm.js",
+  "browser": "dist/support.umd.js",
+  "types": "dist/support.d.ts",
   "directories": {
     "dist": "dist"
   },
   "files": [
     "dist"
   ],
-  "exports": {
-    ".": "./dist/contracts.umd.js",
-    "./dist/*": "./dist/*.umd.js"
-  },
-  "typesVersions": {
-    "*": {
-      "contracts": [ "dist/contracts.d.ts" ],
-      "container": [ "dist/container.d.ts" ],
-      "meta": [ "dist/meta.d.ts" ],
-      "reflections": [ "dist/reflections.d.ts" ],
-      "support": [ "dist/support.d.ts" ]
-    }
-  },
   "scripts": {
     "compile": "rollup -c",
     "watch": "rollup -c -w"
   },
   "devDependencies": {
     "typescript": "^4.3.5"
+  },
+  "peerDependencies": {
+    "@aedart/contracts": "0.0.0"
   }
 }

@@ -4,6 +4,8 @@ import { ClassReference } from "@aedart/contracts/dist/container";
  * A default method to be invoked, when no method name is provided
  *
  * This is heavily inspired by PHP's magic method of the same name.
+ *
+ * @see https://www.php.net/manual/en/language.oop5.magic.php#object.invoke
  */
 export const __INVOKE: unique symbol = Symbol('__invoke');
 

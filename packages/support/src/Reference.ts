@@ -1,4 +1,5 @@
 import { ClassReference } from "@aedart/contracts/dist/container";
+import { TargetMethodReference } from "@aedart/contracts/src/support/aliases";
 import {
     Reference as ReferenceContract,
     __INVOKE
@@ -16,14 +17,14 @@ export default class Reference implements ReferenceContract {
      *
      * @protected
      */
-    protected targetClass: ClassReference<any>;
+    protected _target: ClassReference<any> | object;
 
     /**
      * Method in target class to be invoked
      *
      * @protected
      */
-    protected methodName: string | symbol;
+    protected _method: string | symbol;
 
     /**
      * List of parameters to be passed on to the method
@@ -35,22 +36,36 @@ export default class Reference implements ReferenceContract {
     /**
      * Reference
      *
-     * @param {ClassReference<any>} target
+     * @param {ClassReference<any>|object} target
      * @param {string|symbol} [method]
      */
-    constructor(target: ClassReference<any>, method: string | symbol = __INVOKE) {
-        this.targetClass = target
-        this.methodName = method;
+    constructor(target: ClassReference<any> | object, method: string | symbol = __INVOKE) {
+        this._target = target
+        this._method = method;
     }
 
     /**
-     * Creates a new Class Method Reference
+     * Creates a new Reference
      *
      * @param {ClassReference<any>} target
      * @param {string|symbol} [method]
+     *
+     * @return {ReferenceContract}
      */
-    static make(target: ClassReference<any>, method: string | symbol = __INVOKE): Reference {
+    static make(target: ClassReference<any> | object, method: string | symbol = __INVOKE): Reference {
         return new this(target, method);
+    }
+
+    /**
+     * Creates a new Reference from an array that contains
+     * a target and method reference
+     *
+     * @param {TargetMethodReference} arr
+     *
+     * @return {ReferenceContract}
+     */
+    static fromArray(arr: TargetMethodReference): Reference {
+        return this.make(arr[0], arr[1]);
     }
 
     /**
@@ -91,10 +106,10 @@ export default class Reference implements ReferenceContract {
     /**
      * Target class reference
      *
-     * @return {ClassReference<any>}
+     * @return {ClassReference<any>|object}
      */
-    get target(): ClassReference<any> {
-        return this.targetClass;
+    get target(): ClassReference<any> | object {
+        return this._target;
     }
 
     /**
@@ -103,6 +118,6 @@ export default class Reference implements ReferenceContract {
      * @return {string|symbol}
      */
     get method(): string | symbol {
-        return this.methodName;
+        return this._method;
     }
 }

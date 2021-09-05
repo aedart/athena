@@ -63,6 +63,34 @@ describe('@aedart/support', () => {
                 .withContext('Param C is incorrect')
                 .toBe(c);
         });
+
+        it('can create reference to object', function () {
+            let service = class {}
+            let target = new service();
+            let method = 'handle';
+
+
+            const ref = Reference.make(target, method);
+
+            expect(ref.target)
+                .withContext('Incorrect target object')
+                .toBe(target);
+        });
+
+        it('can create from array (target method reference tuple)', function () {
+            let target = class {};
+            let method = 'handle';
+
+            const ref = Reference.fromArray([target, method])
+
+            expect(ref.target)
+                .withContext('Incorrect target')
+                .toBe(target);
+
+            expect(ref.method)
+                .withContext('Incorrect method')
+                .toBe(method)
+        });
     });
 
 });

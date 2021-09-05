@@ -39,7 +39,7 @@ export default interface Reference {
     /**
      * Target class reference
      */
-    get target(): ClassReference<any> ;
+    get target(): ClassReference<any> | object;
 
     /**
      * Method in target class to be invoked

@@ -558,13 +558,13 @@ export default class Container implements ContainerContract {
      * @protected
      */
     protected isBinding(binding: any): boolean {
-        // In the future, this might be replaced with a simple "instance of" check
-        return binding
-            && binding.hasOwnProperty('abstract')
-            && binding.hasOwnProperty('value')
-            && binding.hasOwnProperty('shared')
-            && binding.hasOwnProperty('isFactoryCallback')
-            && binding.hasOwnProperty('isClassReference');
+        return binding && Reflector.hasProperties(binding, [
+            'abstract',
+            'value',
+            'shared',
+            'isFactoryCallback',
+            'isClassReference'
+        ]);
     }
 
     /**
@@ -577,11 +577,12 @@ export default class Container implements ContainerContract {
      * @protected
      */
     protected isClassMethodReference(reference: any): boolean {
-        return reference
-            && reference.hasOwnProperty('target')
-            && reference.hasOwnProperty('method')
-            && reference.hasOwnProperty('parameters')
-            && reference.hasOwnProperty('hasParameters');
+        return reference && Reflector.hasProperties(reference, [
+            'target',
+            'method',
+            'parameters',
+            'hasParameters',
+        ]);
     }
 
     /**

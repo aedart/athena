@@ -10,6 +10,12 @@ import {DependenciesReflector, Reflector} from "@aedart/reflections";
 import BindingResolutionException from "./exceptions/BindingResolutionException";
 import BindingEntry from "./entries/Binding";
 import { assertBindingIdentifier } from "./entries/assertions";
+import {
+    Reference as ReferenceContract,
+    TargetMethodReference,
+} from "@aedart/contracts/dist/support";
+import { Reference } from "@aedart/support";
+import BindingException from "./exceptions/BindingException";
 
 /**
  * Service Container
@@ -87,6 +93,8 @@ export default class Container implements ContainerContract {
      */
     static setInstance(container: ContainerContract | null = null): ContainerContract | null {
         this.instance = container;
+
+        // TODO: (Re)bind container instance, using the identifier... but is this needed?
 
         return this.instance;
     }
@@ -352,6 +360,34 @@ export default class Container implements ContainerContract {
     }
 
     /**
+     * Call the given method or callback and inject its dependencies
+     *
+     * When no parameters are given, this method will attempt to resolve
+     * target method or callback's dependencies automatically.
+     *
+     * @param {Function|TargetMethodReference|Reference} method Method or callback to be invoked
+     * @param {...any} [params] Eventual parameters to be passed on to the target method
+     *
+     * @return {any}
+     *
+     * @throws {BindingException}
+     */
+    call(method: Function | TargetMethodReference | ReferenceContract, ...params: any[]): any {
+        // Convert argument to a class method reference, if it's an array is given (target method reference)
+        if (Array.isArray(method)) {
+            method = Reference.fromArray(method);
+        }
+
+        // Invoke class method, if such has been given
+        if (this.isClassMethodReference(method)) {
+            return this.invokeClassMethod(method as ReferenceContract, ...params);
+        }
+
+        // Otherwise, we assume that a function, e.g. a callback, was given
+        return this.invokeMethod(method as Function, ...params);
+    }
+
+    /**
      * Remove binding from this container
      *
      * @param {BindingIdentifier} abstract
@@ -441,6 +477,19 @@ export default class Container implements ContainerContract {
     }
 
     /**
+     * Determine if target is callable
+     *
+     * @param {any} target
+     *
+     * @return {boolean}
+     *
+     * @protected
+     */
+    protected isCallable(target: any): boolean {
+        return Reflector.isCallable(target);
+    }
+
+    /**
      * Set a binding in this container
      *
      * @param {BindingIdentifier} abstract
@@ -512,9 +561,93 @@ export default class Container implements ContainerContract {
         // In the future, this might be replaced with a simple "instance of" check
         return binding
             && binding.hasOwnProperty('abstract')
-            && binding.hasOwnProperty('concrete')
-            && binding.hasOwnProperty('isCallback')
-            && binding.hasOwnProperty('shared');
+            && binding.hasOwnProperty('value')
+            && binding.hasOwnProperty('shared')
+            && binding.hasOwnProperty('isFactoryCallback')
+            && binding.hasOwnProperty('isClassReference');
+    }
+
+    /**
+     * Determine if given is a class method reference
+     *
+     * @param {any} reference
+     *
+     * @return {boolean}
+     *
+     * @protected
+     */
+    protected isClassMethodReference(reference: any): boolean {
+        return reference
+            && reference.hasOwnProperty('target')
+            && reference.hasOwnProperty('method')
+            && reference.hasOwnProperty('parameters')
+            && reference.hasOwnProperty('hasParameters');
+    }
+
+    /**
+     * Invoke class method
+     *
+     * When no parameters are given, this method will attempt to resolve
+     * target method or callback's dependencies automatically.
+     *
+     * @param {ReferenceContract} reference
+     * @param {...any} [methodParams] Eventual Class method parameters
+     *
+     * @return {any}
+     *
+     * @throws {BindingException}
+     *
+     * @protected
+     */
+    protected invokeClassMethod(reference: ReferenceContract, ...methodParams: any[]): any {
+        // Build the target class. Note: given parameters belong to the
+        // class method and MUST NOT be passed on here.
+        let targetClass = this.build(reference.target as ClassReference<any>);
+
+        // Abort if target class does not contain desired method.
+        let methodName = reference.method;
+        if (!targetClass.hasOwnProperty(methodName)) {
+            if (typeof methodName === 'symbol') {
+                methodName = methodName.toString();
+            }
+
+            throw new BindingException(`Unable to invoke class method. Target ${targetClass} does not contain method ${methodName}`);
+        }
+
+        // Invoke the method
+        return this.invokeMethod(targetClass[methodName], ...methodParams);
+    }
+
+    /**
+     * Invoke given method
+     *
+     * When no parameters are given, this method will attempt to resolve
+     * target method or callback's dependencies automatically.
+     *
+     * @param {Function} method
+     * @param {...any} [params] Eventual parameters to be passed on to the target method
+     *
+     * @return {any}
+     *
+     * @throws {BindingException}
+     *
+     * @protected
+     */
+    protected invokeMethod(method: Function, ...params: any[]): any {
+        // Abort if not callable, e.g. if not a function was given
+        if (!this.isCallable(method)) {
+            let type: string = typeof method;
+            throw new BindingException(`Unable to invoke method. Expected a callable method, but "${type}" was received instead`);
+        }
+
+        // Resolve the methods dependencies, if no parameters are given and
+        // dependencies are registered via the dependencies reflector.
+        if (params.length === 0 && this.reflector.has(method)) {
+            params = this.resolveDependencies(method as Function);
+        }
+
+        // Finally, invoke the method and return evt. output
+        return method(...params);
     }
 
     /**

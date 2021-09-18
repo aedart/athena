@@ -5,6 +5,10 @@ import {
     ClassReference
 } from "./aliases";
 import Binding from "./entries/Binding";
+import {
+    Reference,
+    TargetMethodReference
+} from "@aedart/contracts/dist/support";
 
 /**
  * Container identifier
@@ -128,6 +132,19 @@ export default interface Container {
      * @throws {BindingResolutionException}
      */
     build(target: ClassReference<any> | Binding, ...params: any[]): ConcreteInstance;
+
+    /**
+     * Call the given method or callback and inject its dependencies
+     *
+     * When no parameters are given, this method will attempt to resolve
+     * target method or callback's dependencies automatically.
+     *
+     * @param method Method or callback to be invoked
+     * @param params Eventual parameters to be passed on to the target method
+     *
+     * @throws {BindingException}
+     */
+    call(method: Function | TargetMethodReference | Reference, ...params: any[]): any;
 
     /**
      * Remove binding from this container

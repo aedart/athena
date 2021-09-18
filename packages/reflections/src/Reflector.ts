@@ -28,6 +28,28 @@ export default class Reflector {
     protected static isClassCache: WeakMap<Function|object, boolean> = new WeakMap<Function | object, boolean>();
 
     /**
+     * Determine if target has all of the given properties
+     *
+     * @param {object} target
+     * @param {string|symbol|(string|symbol)[]} properties
+     *
+     * @return {boolean}
+     */
+    static hasProperties(target: object, properties: string | symbol | (string | symbol)[]): boolean {
+        if (!Array.isArray(properties)) {
+            properties = [ properties ];
+        }
+
+        for (const property of properties) {
+            if (!Reflect.has(target, property)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Determine if given target is callable
      *
      * @param {any} target

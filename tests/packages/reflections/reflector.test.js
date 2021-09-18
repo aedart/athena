@@ -87,6 +87,27 @@ describe('@aedart/reflections', () => {
             // Cleanup
             Reflector.determineClassesVia(original);
         });
+
+        it('can determine if object has properties', function () {
+
+            let target = {
+                a: true,
+                b: false,
+                c: 'sweet'
+            };
+
+            let result = Reflector.hasProperties(target, [ 'a', 'b', 'c' ]);
+            expect(result)
+                .withContext('Could not determine if properties exist in object')
+                .toBeTrue();
+
+            // --------------------------------------------------------------------- //
+
+            let controlResult = Reflector.hasProperties(target, [ 'a', 'b', 'd' ]);
+            expect(controlResult)
+                .withContext('Incorrect control result')
+                .toBeFalse()
+        });
     });
 
 });

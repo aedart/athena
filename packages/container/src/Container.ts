@@ -343,7 +343,7 @@ export default class Container implements ContainerContract {
         // Fail in case that target is not buildable (in case that target was not
         // a binding)
         if (!this.isBuildable(target)) {
-            throw new BindingResolutionException('Target is not buildable (not a class reference)');
+            throw new BindingResolutionException('Target is not buildable (not a class reference or binding entry)');
         }
 
         // At this point, we are sure that the target is a class reference

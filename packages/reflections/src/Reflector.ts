@@ -28,7 +28,7 @@ export default class Reflector {
     protected static isClassCache: WeakMap<Function|object, boolean> = new WeakMap<Function | object, boolean>();
 
     /**
-     * Determine if target has all of the given properties
+     * Determine if target has all the given properties
      *
      * @param {object} target
      * @param {string|symbol|(string|symbol)[]} properties

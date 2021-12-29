@@ -1,6 +1,5 @@
 import {
-    BindingIdentifier,
-    ConcreteInstance
+    BindingIdentifier
 } from "@aedart/contracts/dist/container";
 
 /**
@@ -9,4 +8,4 @@ import {
  * Can contain binding identifiers known by a Service Container or
  * perhaps references to classes.
  */
-export type DependenciesList = BindingIdentifier[] | ConcreteInstance[];
+export type DependenciesList = BindingIdentifier[];

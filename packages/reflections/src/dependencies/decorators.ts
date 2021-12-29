@@ -23,7 +23,7 @@ import DependenciesReflector from "./DependenciesReflector";
  * @see {@link https://www.typescriptlang.org/docs/handbook/decorators.html#decorators|TypeScript Decorators}
  * @see {@link https://github.com/tc39/proposal-decorators|ECMAScript Decorators}
  *
- * @param {...BindingIdentifier | ...ConcreteInstance} params
+ * @param {...BindingIdentifier} params
  *
  * @return {Function}
  */

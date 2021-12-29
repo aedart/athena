@@ -156,7 +156,6 @@ export default class Container implements ContainerContract {
         return this;
     }
 
-
     /**
      * Register a shared binding using a callback
      *
@@ -459,7 +458,7 @@ export default class Container implements ContainerContract {
         try {
             return (binding.value as FactoryCallback)(this, ...params);
         } catch (e) {
-            throw new BindingResolutionException('Unable to resolve binding "' + this.identifierToString(binding.abstract) + '", due to: ' + e.message);
+            throw new BindingResolutionException('Unable to resolve binding "' + this.identifierToString(binding.abstract) + '", due to: ' + (e as Error).message);
         }
     }
 
@@ -705,7 +704,7 @@ export default class Container implements ContainerContract {
                 id = id.toString();
             }
 
-            throw new BindingResolutionException(`Unable to resolve dependency "${id}" for ${target}: ${e.message}`);
+            throw new BindingResolutionException(`Unable to resolve dependency "${id}" for ${target}: ${(e as Error).message}`);
         }
     }
 

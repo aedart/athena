@@ -383,7 +383,7 @@ export default class Container implements ContainerContract {
         }
 
         // Otherwise, we assume that a function, e.g. a callback, was given
-        return this.invokeMethod(method as Function, ...params);
+        return this.invokeMethod(method as Function, undefined, ...params);
     }
 
     /**
@@ -615,7 +615,7 @@ export default class Container implements ContainerContract {
         }
 
         // Invoke the method
-        return this.invokeMethod(targetClass[methodName], ...methodParams);
+        return this.invokeMethod(targetClass[methodName], targetClass, ...methodParams);
     }
 
     /**
@@ -625,6 +625,7 @@ export default class Container implements ContainerContract {
      * target method or callback's dependencies automatically.
      *
      * @param {Function} method
+     * @param {object} [thisArg] The value to use as "this" when invoking the method
      * @param {...any} [params] Eventual parameters to be passed on to the target method
      *
      * @return {any}
@@ -633,7 +634,7 @@ export default class Container implements ContainerContract {
      *
      * @protected
      */
-    protected invokeMethod(method: Function, ...params: any[]): any {
+    protected invokeMethod(method: Function, thisArg?: object, ...params: any[]): any {
         // Abort if not callable, e.g. if not a function was given
         if (!this.isCallable(method)) {
             let type: string = typeof method;
@@ -646,7 +647,12 @@ export default class Container implements ContainerContract {
             params = this.resolveDependencies(method as Function);
         }
 
-        // Finally, invoke the method and return evt. output
+        // Invoke method with this argument...
+        if (thisArg) {
+            return method.call(thisArg, ...params);
+        }
+
+        // Invoke method without this argument
         return method(...params);
     }
 

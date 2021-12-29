@@ -399,7 +399,7 @@ export default class Container implements ContainerContract {
     }
 
     /**
-     * Flush container of all of it's bindings and resolved instances
+     * Flush container of all its bindings and resolved instances
      */
     flush(): void {
         this.bindings.clear();

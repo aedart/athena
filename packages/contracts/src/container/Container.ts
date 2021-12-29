@@ -154,7 +154,7 @@ export default interface Container {
     forget(abstract: BindingIdentifier): void;
 
     /**
-     * Flush container of all of it's bindings and resolved instances
+     * Flush container of all its bindings and resolved instances
      */
     flush(): void;
 }

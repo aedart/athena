@@ -20,6 +20,42 @@ export const DEPENDENCIES_META_TYPE = Symbol('dependencies');
 export default class DependenciesReflector implements DependenciesReflectorContract {
 
     /**
+     * The current singleton dependencies reflector instance
+     *
+     * @protected
+     *
+     * @type {DependenciesReflectorContract|null}
+     */
+    protected static instance: DependenciesReflectorContract | null = null;
+
+    /**
+     * Get singleton instance of the dependencies reflector
+     *
+     * @return {DependenciesReflectorContract}
+     */
+    static getInstance(): DependenciesReflectorContract {
+        if (this.instance === null || this.instance === undefined) {
+            this.setInstance(new this());
+        }
+
+        // @ts-ignore
+        return this.instance;
+    }
+
+    /**
+     * Set the singleton instance of the dependencies reflector
+     *
+     * @param {DependenciesReflectorContract|null} [dependenciesReflector]
+     *
+     * @return {DependenciesReflectorContract|null}
+     */
+    static setInstance(dependenciesReflector: DependenciesReflectorContract | null = null): DependenciesReflectorContract | null {
+        this.instance = dependenciesReflector;
+
+        return this.instance;
+    }
+
+    /**
      * Set meta information about target's dependencies
      *
      * @param {object} target

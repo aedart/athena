@@ -39,6 +39,8 @@ export function dependsOn(...params: DependenciesList): Function {
         }
 
         // Finally, set the dependencies meta information for the target
-        (new DependenciesReflector()).set(reflectorTarget, params);
+        DependenciesReflector
+            .getInstance()
+            .set(reflectorTarget, params);
     }
 }

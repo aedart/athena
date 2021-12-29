@@ -413,6 +413,12 @@ export default class Container implements ContainerContract {
      */
     set reflector(reflector: DependenciesReflectorContract ) {
         this.dependencyReflector = reflector;
+
+        // Force set the singleton instance of dependencies reflector,
+        // to ensure that the correct instance is used throughout
+        // the application...
+        // @see "dependsOn" method implementation
+        DependenciesReflector.setInstance(reflector);
     }
 
     /**
@@ -439,7 +445,7 @@ export default class Container implements ContainerContract {
      * @protected
      */
     protected makeDefaultReflector(): DependenciesReflectorContract {
-        return new DependenciesReflector();
+        return DependenciesReflector.getInstance();
     }
 
     /**

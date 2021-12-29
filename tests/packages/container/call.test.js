@@ -1,7 +1,7 @@
 import Container from "@aedart/container";
 import { dependsOn } from "@aedart/reflections";
 
-fdescribe('@aedart/container', () => {
+describe('@aedart/container', () => {
 
     describe('Call', () => {
 

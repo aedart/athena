@@ -606,7 +606,7 @@ export default class Container implements ContainerContract {
 
         // Abort if target class does not contain desired method.
         let methodName = reference.method;
-        if (!targetClass.hasOwnProperty(methodName)) {
+        if (typeof targetClass[methodName] !== 'function') {
             if (typeof methodName === 'symbol') {
                 methodName = methodName.toString();
             }

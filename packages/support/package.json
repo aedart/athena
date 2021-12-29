@@ -30,7 +30,7 @@
     "watch": "rollup -c -w"
   },
   "devDependencies": {
-    "typescript": "^4.3.5"
+    "typescript": "^4.5.4"
   },
   "peerDependencies": {
     "@aedart/contracts": "0.0.0"

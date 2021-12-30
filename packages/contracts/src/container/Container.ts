@@ -40,11 +40,11 @@ export default interface Container {
      *
      * @param abstract
      * @param value
-     * @param shared Whether binding is shared (singleton) or not
+     * @param [shared] Whether binding is shared (singleton) or not
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>, shared: boolean): Container;
+    bind(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>, shared?: boolean): Container;
 
     /**
      * Register a shared binding using a callback

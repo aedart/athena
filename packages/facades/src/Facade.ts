@@ -154,6 +154,8 @@ export default abstract class Facade {
      * @return {ProxyHandler<Facade>}
      */
     static makeFacadeProxyHandler(): ProxyHandler<Facade> {
+        // Properties or method names that are allowed to be set, obtained or invoked
+        // in the facade class.
         let allowed: string[]|symbol[] = [
             'serviceContainer',
 
@@ -198,7 +200,44 @@ export default abstract class Facade {
                 // Determine if property is in facade's root instance
                 let root: ConcreteInstance = target.facadeRoot();
                 return p in root;
-            }
+            },
+
+            deleteProperty(target: Facade, p: string | symbol): boolean {
+                let root: ConcreteInstance = target.facadeRoot();
+
+                // If the property exists inside the facade's root, attempt to
+                // delete it. Note that this might fail, if the property is not
+                // "configurable". However, we all JavaScript to simply fail so
+                // the developer has a chance to act on it...
+                if (p in root) {
+                    delete root[p];
+                    return true;
+                }
+
+                return false;
+            },
+
+            defineProperty(target: Facade, p: string | symbol, attributes: PropertyDescriptor): boolean {
+                let root: ConcreteInstance = target.facadeRoot();
+
+                Object.defineProperty(root, p, attributes);
+
+                return true;
+            },
+
+            getOwnPropertyDescriptor(target: Facade, p: string | symbol): PropertyDescriptor | undefined {
+                // Return descriptor from facade, if requested property matches
+                if (allowed.includes(p as never) && p in target) {
+                    return Reflect.getOwnPropertyDescriptor(target, p);
+                }
+
+                let root: ConcreteInstance = target.facadeRoot();
+
+                return Reflect.getOwnPropertyDescriptor(root, p);
+            },
+
+            // TODO: Implement remaining traps, e.g. apply, ownKeys, isExtensible, preventsExtensions...etc
+            // TODO: Consider how to solve usage of getPrototype, setPrototype... etc.
         }
     }
 }

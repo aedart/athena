@@ -157,10 +157,10 @@ export default abstract class Facade {
         let allowed: string[]|symbol[] = [
             'serviceContainer',
 
-            // The transpiled / exported instance of the Facade abstraction does
-            // not contain the "facade accessor" method. It only exists in concrete
-            // implementations. Yet, we must allow it to be accessed, when desired.
-            'facadeAccessor'
+            // The following "methods" must be declared allowed or a concrete facade
+            // will not be able to access these as expected.
+            'facadeAccessor',
+            'facadeRoot'
         ];
 
         return {

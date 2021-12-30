@@ -40,7 +40,7 @@ export default abstract class Facade {
      * @throws {TypeError} If facade accessor is missing
      * @throws {BindingException} If unable to resolve facade accessor from IoC Service Container
      */
-    protected constructor() {
+    constructor() {
         if (new.target === Facade) {
             throw new Error('Cannot create instance of abstract class');
         }

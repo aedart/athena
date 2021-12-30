@@ -49,7 +49,18 @@ export default class Greeter {
      *
      * @return {string}
      */
-    sayHi() {
-        return `Welcome ${this.customer}`;
+    greetings() {
+        return this.sayWelcome(this.customer);
+    }
+
+    /**
+     * Say "welcome" to the given person
+     *
+     * @param {string} person Name of person
+     *
+     * @return {string}
+     */
+    sayWelcome(person) {
+        return `Welcome ${person}`;
     }
 }

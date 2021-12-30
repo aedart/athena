@@ -26,6 +26,14 @@ export default class Greeter {
      */
     _customer = null;
 
+    constructor() {
+
+        // Dynamically added method...
+        this.foo = () => {
+            return 'bar';
+        };
+    }
+
     /**
      * Set name of the customer
      *

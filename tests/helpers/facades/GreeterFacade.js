@@ -4,6 +4,8 @@ import { GREETER_IDENTIFIER } from "./Greeter";
 /**
  * GreeterFacade
  *
+ * @mixes Greeter
+ *
  * FOR TESTING PURPOSES ONLY
  */
 class GreeterFacade extends Facade {

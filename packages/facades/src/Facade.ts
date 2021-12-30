@@ -81,7 +81,7 @@ export default abstract class Facade {
      * @throws {TypeError} If IoC Service Container instance not defined in Facade
      */
     static resolveFacadeInstance(name: BindingIdentifier): ConcreteInstance {
-        if (this.hasResolveInstance(name)) {
+        if (this.hasResolvedInstance(name)) {
             return this.resolvedInstances.get(name);
         }
 
@@ -103,7 +103,7 @@ export default abstract class Facade {
      *
      * @return {boolean}
      */
-    static hasResolveInstance(name: BindingIdentifier): boolean {
+    static hasResolvedInstance(name: BindingIdentifier): boolean {
         return this.resolvedInstances.has(name);
     }
 
@@ -155,7 +155,12 @@ export default abstract class Facade {
      */
     static makeFacadeProxyHandler(): ProxyHandler<Facade> {
         let allowed: string[]|symbol[] = [
-            'serviceContainer'
+            'serviceContainer',
+
+            // The transpiled / exported instance of the Facade abstraction does
+            // not contain the "facade accessor" method. It only exists in concrete
+            // implementations. Yet, we must allow it to be accessed, when desired.
+            'facadeAccessor'
         ];
 
         return {

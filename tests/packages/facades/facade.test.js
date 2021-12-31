@@ -255,6 +255,23 @@ describe('@aedart/facades', () => {
                 .toBe(expected);
         });
 
+        it('can invoke method using Reflect.apply', function () {
+            bindGreeter();
+
+            let name = faker.name.findName();
+            let expected = `Welcome ${name}`
+
+            // ------------------------------------------------------ //
+
+            let result = Reflect.apply(GreeterFacade.sayWelcome, undefined, [name]);
+
+            // ------------------------------------------------------ //
+
+            expect(result)
+                .withContext('Method with args. was not invoked correctly')
+                .toBe(expected);
+        });
+
         it('can proxy define properties', function () {
             bindGreeter();
 

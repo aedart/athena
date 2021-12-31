@@ -5,7 +5,7 @@ import GreeterFacade from "../../helpers/facades/GreeterFacade";
 import faker from 'faker';
 import {fa} from "faker/lib/locales";
 
-fdescribe('@aedart/facades', () => {
+describe('@aedart/facades', () => {
 
     /*****************************************************************
      * Setup
@@ -62,11 +62,21 @@ fdescribe('@aedart/facades', () => {
         });
 
         it('can obtain facade accessor', function () {
+            let container = Container.getInstance();
 
-            let expected = 'my-accessor';
+            // NOTE: We MUST bind the "accessor" in container or
+            // test will fail as soon as we attempt to retrieve the
+            // accessor from the facade!
+            let abstract = 'my-accessor';
+            container.bind(abstract, () => {
+                return {};
+            });
+
+            // ------------------------------------------------------ //
+
             class DummyFacade extends Facade {
                 facadeAccessor() {
-                    return expected;
+                    return abstract;
                 }
             }
 
@@ -77,7 +87,7 @@ fdescribe('@aedart/facades', () => {
 
             expect(result)
                 .withContext('Unable to obtain facade accessor')
-                .toBe(expected);
+                .toBe(abstract);
         });
 
         it('can resolve instance from service container', function () {
@@ -226,6 +236,22 @@ fdescribe('@aedart/facades', () => {
 
             expect(result)
                 .withContext('Dynamic method not invoked')
+                .toBe(expected);
+        });
+
+        it('can invoke method defined in facade', function () {
+            bindGreeter();
+
+            let expected = 'God, command me plunder, ye coal-black lass!';
+
+            // ------------------------------------------------------ //
+
+            let result = GreeterFacade.lingo();
+
+            // ------------------------------------------------------ //
+
+            expect(result)
+                .withContext('Custom method in facade was not invoked?')
                 .toBe(expected);
         });
 

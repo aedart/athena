@@ -154,52 +154,40 @@ export default abstract class Facade {
      * @return {ProxyHandler<Facade>}
      */
     static makeFacadeProxyHandler(): ProxyHandler<Facade> {
-        // Properties or method names that are allowed to be set, obtained or invoked
-        // in the facade class.
-        let allowed: string[]|symbol[] = [
-            'serviceContainer',
 
-            // The following "methods" must be declared allowed or a concrete facade
-            // will not be able to access these as expected.
+        let facadeMembers: string[] | symbol[] = [
             'facadeAccessor',
             'facadeRoot'
         ];
 
         return {
             set(target: Facade, p: string | symbol, value: any, receiver: any): boolean {
-                // If requested property is in Facade class, allow setting it
-                if (allowed.includes(p as never) && p in target) {
-                    (target as any)[p] = value;
+                let root: ConcreteInstance = target.facadeRoot();
+                if (p in root && !facadeMembers.includes(p as never)) {
+                    root[p] = value
                     return true;
                 }
 
-                // Set value in facade's root instance
-                let root: ConcreteInstance = target.facadeRoot();
-                root[p] = value
-
+                (target as any)[p] = value;
                 return true;
             },
 
             get(target: Facade, p: string | symbol, receiver: any): any {
-                // If requested property is in Facade class, allow returning it
-                if (allowed.includes(p as never) && p in target) {
-                    return (target as any)[p];
+                let root: ConcreteInstance = target.facadeRoot();
+                if (p in root && !facadeMembers.includes(p as never)) {
+                    return root[p];
                 }
 
-                // Get value from facade's root instance
-                let root: ConcreteInstance = target.facadeRoot();
-                return root[p];
+                return (target as any)[p];
             },
 
             has(target: Facade, p: string | symbol): boolean {
-                // If requested property is in Facade class...
-                if (allowed.includes(p as never) && p in target) {
+                let root: ConcreteInstance = target.facadeRoot();
+                if (p in root && !facadeMembers.includes(p as never)) {
                     return true;
                 }
 
-                // Determine if property is in facade's root instance
-                let root: ConcreteInstance = target.facadeRoot();
-                return p in root;
+                return p in target;
             },
 
             deleteProperty(target: Facade, p: string | symbol): boolean {
@@ -207,9 +195,9 @@ export default abstract class Facade {
 
                 // If the property exists inside the facade's root, attempt to
                 // delete it. Note that this might fail, if the property is not
-                // "configurable". However, we all JavaScript to simply fail so
+                // "configurable". However, we allow JavaScript to simply fail so
                 // the developer has a chance to act on it...
-                if (p in root) {
+                if (p in root && !facadeMembers.includes(p as never)) {
                     delete root[p];
                     return true;
                 }
@@ -226,14 +214,12 @@ export default abstract class Facade {
             },
 
             getOwnPropertyDescriptor(target: Facade, p: string | symbol): PropertyDescriptor | undefined {
-                // Return descriptor from facade, if requested property matches
-                if (allowed.includes(p as never) && p in target) {
-                    return Reflect.getOwnPropertyDescriptor(target, p);
+                let root: ConcreteInstance = target.facadeRoot();
+                if (p in root && !facadeMembers.includes(p as never)) {
+                    return Reflect.getOwnPropertyDescriptor(root, p);
                 }
 
-                let root: ConcreteInstance = target.facadeRoot();
-
-                return Reflect.getOwnPropertyDescriptor(root, p);
+                return Reflect.getOwnPropertyDescriptor(target, p);
             },
 
             // TODO: Implement remaining traps, e.g. apply, ownKeys, isExtensible, preventsExtensions...etc

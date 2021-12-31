@@ -340,5 +340,26 @@ describe('@aedart/facades', () => {
                 .withContext('Unexpected property value in descriptor')
                 .toBe(name);
         });
+
+        it('can proxy own keys reflection', function () {
+            bindGreeter();
+
+            // ------------------------------------------------------ //
+
+            let result = Reflect.ownKeys(GreeterFacade);
+
+            // ------------------------------------------------------ //
+
+            expect(result.length)
+                .withContext('No properties returned')
+                .toBeGreaterThan(0);
+
+            let root = GreeterFacade.facadeRoot();
+            result.forEach((property) => {
+                expect(property in root)
+                    .withContext(`${property} does not exist in facade root`)
+                    .toBeTrue();
+            });
+        });
     });
 });

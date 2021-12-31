@@ -222,8 +222,11 @@ export default abstract class Facade {
                 return Reflect.getOwnPropertyDescriptor(target, p);
             },
 
-            // TODO: Implement remaining traps, e.g. apply, ownKeys, isExtensible, preventsExtensions...etc
-            // TODO: Consider how to solve usage of getPrototype, setPrototype... etc.
+            ownKeys(target: Facade): ArrayLike<string | symbol> {
+                let root: ConcreteInstance = target.facadeRoot();
+
+                return Reflect.ownKeys(root);
+            }
         }
     }
 }

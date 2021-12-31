@@ -16,6 +16,15 @@ class GreeterFacade extends Facade {
     facadeAccessor() {
         return GREETER_IDENTIFIER;
     }
+
+    /**
+     * Returns a custom greeting...
+     *
+     * @return {string}
+     */
+    lingo() {
+        return 'God, command me plunder, ye coal-black lass!';
+    }
 }
 
 export default new GreeterFacade();

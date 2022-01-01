@@ -1,4 +1,5 @@
 import ServiceProvider from "./services/ServiceProvider";
+import Bootable from "./services/Bootable";
 import Reference, { __INVOKE } from "./Reference";
 import {
     TargetMethodReference
@@ -11,5 +12,6 @@ export {
     TargetMethodReference,
 
     // Services
-    ServiceProvider
+    ServiceProvider,
+    Bootable
 }

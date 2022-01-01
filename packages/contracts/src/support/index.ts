@@ -1,3 +1,4 @@
+import ServiceProvider from "./services/ServiceProvider";
 import Reference, { __INVOKE } from "./Reference";
 import {
     TargetMethodReference
@@ -7,5 +8,8 @@ export {
     __INVOKE,
     Reference,
 
-    TargetMethodReference
+    TargetMethodReference,
+
+    // Services
+    ServiceProvider
 }

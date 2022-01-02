@@ -1,5 +1,3 @@
-import { ClassReference } from "@aedart/contracts/dist/container";
-
 /**
  * Wrapped mixin symbol
  */
@@ -13,12 +11,12 @@ export default class Wrapper {
     /**
      * Set property of wrapper to given mixin
      *
-     * @param {ClassReference<any>} mixin
-     * @param {ClassReference<any>} wrapper
+     * @param {Function} mixin
+     * @param {Function} wrapper
      *
-     * @return {ClassReference<any>}
+     * @return {Function}
      */
-    static wrap(mixin: ClassReference<any>, wrapper: ClassReference<any>): ClassReference<any> {
+    static wrap(mixin: Function, wrapper: Function): Function {
         Object.setPrototypeOf(wrapper, mixin);
 
         if (!(mixin as any)[WRAPPED_MIXIN]) {
@@ -31,11 +29,11 @@ export default class Wrapper {
     /**
      * Unwrap given class and return original mixin
      *
-     * @param {ClassReference<any>} wrapped
+     * @param {Function} wrapped
      *
-     * @return {ClassReference<any>} Mixin or given class if no mixin was available
+     * @return {Function} Mixin or given class if no mixin was available
      */
-    static unwrap(wrapped: ClassReference<any>): ClassReference<any> {
+    static unwrap(wrapped: Function): Function {
         return (wrapped as any)[WRAPPED_MIXIN] || wrapped;
     }
 }

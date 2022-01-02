@@ -1,0 +1,38 @@
+{
+  "name": "@aedart/mixins",
+  "version": "0.0.0",
+  "description": "Mixins",
+  "author": "Alin Eugen Deac <aedart@gmail.com>",
+  "homepage": "https://github.com/aedart/athena/tree/main/packages/alpha#readme",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/aedart/athena/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aedart/athena.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/mixins.cjs.js",
+  "module": "dist/mixins.esm.js",
+  "browser": "dist/mixins.umd.js",
+  "types": "dist/mixins.d.ts",
+  "directories": {
+    "dist": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "compile": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  },
+  "peerDependencies": {
+    
+  }
+}

@@ -20,7 +20,7 @@ import Builder from "./Builder";
  *
  * @return {Function}
  */
-export const declare: Function = (mixin: Function): Function => {
+const declare: Function = (mixin: Function): Function => {
     return Cached(
         HasInstance(
             Bare(mixin)
@@ -52,7 +52,11 @@ const mix: Function = (baseClass: Function = class {}) => new Builder(baseClass)
 export {
     HasMixin,
     isApplicationOf,
+    Bare,
+    HasInstance,
+    Cached,
     Wrapper,
-    Builder
-}
-export default mix;
+    Builder,
+    declare,
+    mix as default
+};

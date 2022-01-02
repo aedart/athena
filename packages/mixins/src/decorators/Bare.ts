@@ -14,7 +14,7 @@ export const APPLIED_MIXIN: unique symbol = Symbol('@aedart/mixins/applied-mixin
  *
  * @return {Function}
  */
-const Bare = (mixin: Function) => Wrapper.wrap(mixin, (superClass: Function) => {
+const Bare = (mixin: Function): Function => Wrapper.wrap(mixin, (superClass: Function) => {
     // Apply mixin
     const applied = mixin(superClass);
 

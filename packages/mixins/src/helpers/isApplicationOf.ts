@@ -9,6 +9,6 @@ import Wrapper from "./Wrapper";
  *
  * @return {boolean}
  */
-export default function(instance: Object, mixin: Function): boolean {
+export default function isApplicationOf(instance: Object, mixin: Function): boolean {
     return instance.hasOwnProperty(APPLIED_MIXIN) && (instance as any)[APPLIED_MIXIN] === Wrapper.unwrap(mixin);
 }

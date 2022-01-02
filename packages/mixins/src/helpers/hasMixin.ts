@@ -8,7 +8,7 @@ import isApplicationOf from "./isApplicationOf";
  *
  * @return {boolean}
  */
-export default function(instance: Object, mixin: Function): boolean {
+export default function hasMixin(instance: Object, mixin: Function): boolean {
     while (instance !== null) {
         if (isApplicationOf(instance, mixin)) {
             return true;

@@ -31,5 +31,8 @@
   },
   "devDependencies": {
     "typescript": "^4.5.4"
+  },
+  "peerDependencies": {
+    "@aedart/contracts": "0.0.0"
   }
 }

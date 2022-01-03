@@ -34,6 +34,7 @@
       "contracts": [ "dist/contracts.d.ts" ],
       "container": [ "dist/container.d.ts" ],
       "meta": [ "dist/meta.d.ts" ],
+      "mixins": [ "dist/mixins.d.ts" ],
       "reflections": [ "dist/reflections.d.ts" ],
       "support": [ "dist/support.d.ts" ]
     }

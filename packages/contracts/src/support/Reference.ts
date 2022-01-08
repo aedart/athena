@@ -1,4 +1,4 @@
-import { ClassReference } from "@aedart/contracts/dist/container";
+import { Constructor } from "./aliases";
 
 /**
  * A default method to be invoked, when no method name is provided
@@ -39,7 +39,7 @@ export default interface Reference {
     /**
      * Target class reference
      */
-    get target(): ClassReference<any> | object;
+    get target(): Constructor<any> | object;
 
     /**
      * Method in target class to be invoked

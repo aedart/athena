@@ -1,8 +1,8 @@
-import { ClassReference } from "@aedart/contracts/dist/container";
 import { TargetMethodReference } from "@aedart/contracts/src/support/aliases";
 import {
     Reference as ReferenceContract,
-    __INVOKE
+    __INVOKE,
+    Constructor
 } from "@aedart/contracts/dist/support";
 
 /**
@@ -17,7 +17,7 @@ export default class Reference implements ReferenceContract {
      *
      * @protected
      */
-    protected _target: ClassReference<any> | object;
+    protected _target: Constructor<any> | object;
 
     /**
      * Method in target class to be invoked
@@ -36,10 +36,10 @@ export default class Reference implements ReferenceContract {
     /**
      * Reference
      *
-     * @param {ClassReference<any>|object} target
+     * @param {Constructor<any>|object} target
      * @param {string|symbol} [method]
      */
-    constructor(target: ClassReference<any> | object, method: string | symbol = __INVOKE) {
+    constructor(target: Constructor<any> | object, method: string | symbol = __INVOKE) {
         this._target = target
         this._method = method;
     }
@@ -47,12 +47,12 @@ export default class Reference implements ReferenceContract {
     /**
      * Creates a new Reference
      *
-     * @param {ClassReference<any>} target
+     * @param {Constructor<any>} target
      * @param {string|symbol} [method]
      *
      * @return {ReferenceContract}
      */
-    static make(target: ClassReference<any> | object, method: string | symbol = __INVOKE): Reference {
+    static make(target: Constructor<any> | object, method: string | symbol = __INVOKE): Reference {
         return new this(target, method);
     }
 
@@ -106,9 +106,9 @@ export default class Reference implements ReferenceContract {
     /**
      * Target class reference
      *
-     * @return {ClassReference<any>|object}
+     * @return {Constructor<any>|object}
      */
-    get target(): ClassReference<any> | object {
+    get target(): Constructor<any> | object {
         return this._target;
     }
 

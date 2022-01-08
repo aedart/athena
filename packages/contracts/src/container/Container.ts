@@ -2,12 +2,13 @@ import {
     BindingIdentifier,
     FactoryCallback,
     ConcreteInstance,
-    ClassReference
 } from "./aliases";
 import Binding from "./entries/Binding";
 import {
     Reference,
-    TargetMethodReference
+    TargetMethodReference,
+    Constructor,
+    AbstractOrConcreteConstructor
 } from "@aedart/contracts/dist/support";
 
 /**
@@ -44,7 +45,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>, shared?: boolean): Container;
+    bind(abstract: BindingIdentifier, value: FactoryCallback | AbstractOrConcreteConstructor<any>, shared?: boolean): Container;
 
     /**
      * Register a shared binding using a callback
@@ -54,7 +55,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>): Container;
+    singleton(abstract: BindingIdentifier, value: FactoryCallback | AbstractOrConcreteConstructor<any>): Container;
 
     /**
      * Register an existing instance as a shared binding
@@ -131,7 +132,7 @@ export default interface Container {
      *
      * @throws {BindingResolutionException}
      */
-    build(target: ClassReference<any> | Binding, ...params: any[]): ConcreteInstance;
+    build(target: Constructor<any> | Binding, ...params: any[]): ConcreteInstance;
 
     /**
      * Call the given method or callback and inject its dependencies

@@ -1,20 +1,19 @@
+import {
+    Constructor,
+    AbstractConstructor
+} from "@aedart/contracts/dist/support";
 import Container from "./Container";
 
 /**
- * A class reference
- */
-export type ClassReference<T> = new (...args: any[]) => T;
-
-/**
  * A binding identifier (also known as "abstract") can consist
- * of several types; a string, a symbol or perhaps a function.
+ * of several types; a string, a symbol, function or constructor.
  *
  * It is commonly paired with a "concrete" object instance,
  * function or other type of value.
  *
  * @see ConcreteInstance
  */
-export type BindingIdentifier = string | Function | symbol | object | ClassReference<any>;
+export type BindingIdentifier = string | Function | symbol | object | Constructor<any> | AbstractConstructor<any>;
 
 /**
  * The concrete instance of a binding

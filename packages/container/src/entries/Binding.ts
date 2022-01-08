@@ -2,8 +2,10 @@ import {
     Binding as BindingContract,
     BindingIdentifier,
     FactoryCallback,
-    ClassReference,
 } from "@aedart/contracts/dist/container";
+import {
+    Constructor
+} from "@aedart/contracts/dist/support"
 import {
     assertBindingIdentifier,
     assertBindingValue
@@ -29,7 +31,7 @@ export default class Binding implements BindingContract {
      *
      * @protected
      */
-    protected readonly concreteValue: FactoryCallback | ClassReference<any>;
+    protected readonly concreteValue: FactoryCallback | Constructor<any>;
 
     /**
      * State whether binding is shared or not
@@ -42,7 +44,7 @@ export default class Binding implements BindingContract {
      * Binding
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ClassReference<any>} value
+     * @param {FactoryCallback|Constructor<any>} value
      * @param {boolean} [shared]
      *
      * @throws {InvalidBindingIdentifier}
@@ -50,7 +52,7 @@ export default class Binding implements BindingContract {
      */
     constructor(
         abstract: BindingIdentifier,
-        value: FactoryCallback | ClassReference<any>,
+        value: FactoryCallback | Constructor<any>,
         shared: boolean = false,
     ) {
         this.assertBindingIdentifier(abstract);
@@ -74,9 +76,9 @@ export default class Binding implements BindingContract {
      * Returns the callback to be invoked or reference to class that must be
      * instantiated, when requested from a service container
      *
-     * @return {FactoryCallback|ClassReference<any>}
+     * @return {FactoryCallback|Constructor<any>}
      */
-    get value(): FactoryCallback | ClassReference<any> {
+    get value(): FactoryCallback | Constructor<any> {
         return this.concreteValue;
     }
 

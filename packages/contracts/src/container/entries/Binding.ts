@@ -1,8 +1,10 @@
 import {
     BindingIdentifier,
     FactoryCallback,
-    ClassReference,
 } from "../aliases";
+import {
+    Constructor
+} from "@aedart/contracts/dist/support"
 
 /**
  * Binding Entry
@@ -18,7 +20,7 @@ export default interface Binding {
      * Returns the callback to be invoked or reference to class that must be
      * instantiated, when requested from a service container
      */
-    get value(): FactoryCallback | ClassReference<any>;
+    get value(): FactoryCallback | Constructor<any>;
 
     /**
      * Whether the binding value is a factory callback or not

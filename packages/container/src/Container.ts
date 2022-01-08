@@ -1,6 +1,5 @@
 import ContainerContract, {
     BindingIdentifier,
-    ClassReference,
     FactoryCallback,
     ConcreteInstance,
     Binding
@@ -13,6 +12,8 @@ import { assertBindingIdentifier } from "./entries/assertions";
 import {
     Reference as ReferenceContract,
     TargetMethodReference,
+    Constructor,
+    AbstractOrConcreteConstructor
 } from "@aedart/contracts/dist/support";
 import { Reference } from "@aedart/support";
 import BindingException from "./exceptions/BindingException";
@@ -142,14 +143,14 @@ export default class Container implements ContainerContract {
      * Register a binding using a callback
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ClassReference<any>} value
+     * @param {FactoryCallback|AbstractOrConcreteConstructor<any>} value
      * @param {boolean} [shared] Whether binding is shared (singleton) or not
      *
      * @return {ContainerContract}
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>, shared: boolean = false): ContainerContract {
+    bind(abstract: BindingIdentifier, value: FactoryCallback | AbstractOrConcreteConstructor<any>, shared: boolean = false): ContainerContract {
         this.setBinding(abstract, value, shared);
 
         // @ts-ignore
@@ -160,13 +161,13 @@ export default class Container implements ContainerContract {
      * Register a shared binding using a callback
      *
      * @param {BindingIdentifier} abstract
-     * @param {FactoryCallback|ClassReference<any>} value
+     * @param {FactoryCallback|AbstractOrConcreteConstructor<any>} value
      *
      * @return {ContainerContract}
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, value: FactoryCallback | ClassReference<any>): ContainerContract {
+    singleton(abstract: BindingIdentifier, value: FactoryCallback | AbstractOrConcreteConstructor<any>): ContainerContract {
         return this.bind(abstract, value, true);
     }
 
@@ -274,7 +275,7 @@ export default class Container implements ContainerContract {
         // When no binding is matched, but given abstract is a buildable class,
         // then build it. Otherwise fail...
         if (binding === undefined && this.isBuildable(abstract)) {
-            return this.build(abstract as ClassReference<any>, ...params);
+            return this.build(abstract as Constructor<any>, ...params);
         } else if (binding === undefined) {
             throw new BindingResolutionException('Unable to resolve abstract, no matching binding found and abstract is not buildable (not a class reference)');
         }
@@ -314,14 +315,14 @@ export default class Container implements ContainerContract {
     /**
      * Builds a concrete instance from given binding or class constructor reference
      *
-     * @param {ClassReference<any>|Binding} target
+     * @param {Constructor<any>|Binding} target
      * @param {...any} [params]
      *
      * @return {ConcreteInstance}
      *
      * @throws {BindingResolutionException}
      */
-    build(target: ClassReference<any> | Binding, ...params: any[]): ConcreteInstance {
+    build(target: Constructor<any> | Binding, ...params: any[]): ConcreteInstance {
         // Abort when no target given
         if (!target) {
             throw new BindingResolutionException('Unable to build, no target binding or class reference given');
@@ -336,7 +337,7 @@ export default class Container implements ContainerContract {
         // When target is a binding of the type calls reference,
         // then set the target to the binding's value so it can be resolved.
         if (this.isBinding(target)) {
-            target = (target as Binding).value as ClassReference<any>;
+            target = (target as Binding).value as Constructor<any>;
         }
 
         // Fail in case that target is not buildable (in case that target was not
@@ -351,11 +352,11 @@ export default class Container implements ContainerContract {
         // are provided, we must attempt to resolve eventual dependencies
         // by means of meta information, if it's available for the target.
         if (params.length === 0 && this.reflector.has(target)) {
-            params = this.resolveDependencies(target as ClassReference<any>);
+            params = this.resolveDependencies(target as Constructor<any>);
         }
 
         // Finally, create a new instance with the given or resolved params
-        return new (target as ClassReference<any>)(...params);
+        return new (target as Constructor<any>)(...params);
     }
 
     /**
@@ -608,7 +609,7 @@ export default class Container implements ContainerContract {
     protected invokeClassMethod(reference: ReferenceContract, ...methodParams: any[]): any {
         // Build the target class. Note: given parameters belong to the
         // class method and MUST NOT be passed on here.
-        let targetClass = this.build(reference.target as ClassReference<any>);
+        let targetClass = this.build(reference.target as Constructor<any>);
 
         // Abort if target class does not contain desired method.
         let methodName = reference.method;
@@ -670,7 +671,7 @@ export default class Container implements ContainerContract {
      *
      * @see reflector
      *
-     * @param {ClassReference<any>|Function} target
+     * @param {Constructor<any>|Function} target
      *
      * @return {any[]} List of resolved dependencies
      *
@@ -678,7 +679,7 @@ export default class Container implements ContainerContract {
      *
      * @protected
      */
-    protected resolveDependencies(target: ClassReference<any> | Function): any[] {
+    protected resolveDependencies(target: Constructor<any> | Function): any[] {
         // Obtain list of binding identifiers that might be stored as meta information
         // for given target - empty list is returned when none have been defined.
         let dependencies: BindingIdentifier[] = this.reflector.get(target);
@@ -699,7 +700,7 @@ export default class Container implements ContainerContract {
      * Resolve a single identified dependency for given target
      *
      * @param {BindingIdentifier} dependency Binding identifier resolved from a "dependency reflector"
-     * @param {ClassReference<any>|Function} target
+     * @param {Constructor<any>|Function} target
      *
      * @return {any}
      *
@@ -707,7 +708,7 @@ export default class Container implements ContainerContract {
      *
      * @protected
      */
-    protected resolveDependency(dependency: BindingIdentifier, target: ClassReference<any> | Function): any {
+    protected resolveDependency(dependency: BindingIdentifier, target: Constructor<any> | Function): any {
         try {
             return this.make(dependency);
         } catch (e) {
@@ -750,8 +751,7 @@ export default class Container implements ContainerContract {
                 return identifier.toString();
 
             case 'string':
-                // @ts-ignore
-                return identifier;
+                return (identifier as string);
 
             default:
                 return type;

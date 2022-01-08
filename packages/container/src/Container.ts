@@ -77,8 +77,7 @@ export default class Container implements ContainerContract {
      */
     static getInstance(): ContainerContract {
         if (this.instance === null || this.instance === undefined) {
-            // @ts-ignore
-            return this.setInstance(new this());
+            return (this.setInstance(new this()) as ContainerContract);
         }
 
         return this.instance;
@@ -152,7 +151,6 @@ export default class Container implements ContainerContract {
     bind(abstract: BindingIdentifier, value: FactoryCallback | Constructor<any>, shared: boolean = false): ContainerContract {
         this.setBinding(abstract, value, shared);
 
-        // @ts-ignore
         return this;
     }
 
@@ -211,7 +209,6 @@ export default class Container implements ContainerContract {
 
         this.aliases.set(alias, abstract);
 
-        // @ts-ignore
         return this;
     }
 
@@ -441,8 +438,7 @@ export default class Container implements ContainerContract {
             this.reflector = this.makeDefaultReflector();
         }
 
-        // @ts-ignore
-        return this.dependencyReflector;
+        return (this.dependencyReflector as DependenciesReflectorContract);
     }
 
     /*****************************************************************
@@ -561,8 +557,7 @@ export default class Container implements ContainerContract {
             return identifier;
         }
 
-        // @ts-ignore
-        return this.aliases.get(identifier);
+        return (this.aliases.get(identifier) as BindingIdentifier);
     }
 
     /**

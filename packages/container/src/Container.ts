@@ -2,7 +2,8 @@ import ContainerContract, {
     BindingIdentifier,
     FactoryCallback,
     Resolved,
-    Binding
+    Binding,
+    CONTAINER
 } from "@aedart/contracts/dist/container";
 import { DependenciesReflector as DependenciesReflectorContract  } from "@aedart/contracts/dist/reflections";
 import {DependenciesReflector, Reflector} from "@aedart/reflections";
@@ -93,7 +94,11 @@ export default class Container implements ContainerContract {
     static setInstance(container: ContainerContract | null = null): ContainerContract | null {
         this.instance = container;
 
-        // TODO: (Re)bind container instance, using the identifier... but is this needed?
+        // We assume that when setting new singleton instance of container, then
+        // the container's binding value must be updated.
+        if (container) {
+            container.instance(CONTAINER, container);
+        }
 
         return this.instance;
     }

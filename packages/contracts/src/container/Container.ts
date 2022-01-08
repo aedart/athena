@@ -1,14 +1,13 @@
 import {
     BindingIdentifier,
     FactoryCallback,
-    ConcreteInstance,
+    Resolved,
 } from "./aliases";
 import Binding from "./entries/Binding";
 import {
     Reference,
     TargetMethodReference,
     Constructor,
-    AbstractOrConcreteConstructor
 } from "@aedart/contracts/dist/support";
 
 /**
@@ -34,7 +33,7 @@ export default interface Container {
     /**
      * Map of shared instances (singletons)
      */
-    get instances(): Map<BindingIdentifier, ConcreteInstance>;
+    get instances(): Map<BindingIdentifier, Resolved>;
 
     /**
      * Register a binding using a callback
@@ -45,7 +44,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    bind(abstract: BindingIdentifier, value: FactoryCallback | AbstractOrConcreteConstructor<any>, shared?: boolean): Container;
+    bind(abstract: BindingIdentifier, value: FactoryCallback | Constructor<any>, shared?: boolean): Container;
 
     /**
      * Register a shared binding using a callback
@@ -55,7 +54,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    singleton(abstract: BindingIdentifier, value: FactoryCallback | AbstractOrConcreteConstructor<any>): Container;
+    singleton(abstract: BindingIdentifier, value: FactoryCallback | Constructor<any>): Container;
 
     /**
      * Register an existing instance as a shared binding
@@ -65,7 +64,7 @@ export default interface Container {
      *
      * @throws {TypeError}
      */
-    instance(abstract: BindingIdentifier, instance: ConcreteInstance): ConcreteInstance;
+    instance<T = any>(abstract: BindingIdentifier, instance: Resolved<T>): Resolved<T>;
 
     /**
      * Define an alias for the given binding identifier
@@ -98,7 +97,7 @@ export default interface Container {
      *
      * @throws {BindingException} If unable to resolve binding
      */
-    get(abstract: BindingIdentifier): ConcreteInstance;
+    get<T = any>(abstract: BindingIdentifier): Resolved<T>;
 
     /**
      * Resolve binding
@@ -108,7 +107,7 @@ export default interface Container {
      *
      * @throws {BindingException} If unable to resolve binding
      */
-    make(abstract: BindingIdentifier, ...params: any[]): ConcreteInstance;
+    make<T = any>(abstract: BindingIdentifier, ...params: any[]): Resolved<T>;
 
     /**
      * Attempt to resolve binding and return it's concrete instance or return
@@ -117,12 +116,12 @@ export default interface Container {
      * Note: The method might still fail, in case of the biding cannot be resolved.
      *
      * @param abstract
-     * @param defaultInstance Default instance to be returned if no binding exists for given identifier
+     * @param defaultValue Default value to be returned if no binding exists for given identifier
      * @param params Eventual parameters to be passed onto the binding
      *
      * @throws {BindingException} If unable to resolve binding
      */
-    makeOrDefault(abstract: BindingIdentifier, defaultInstance: ConcreteInstance, ...params: any[]): ConcreteInstance;
+    makeOrDefault<T = any, U = any>(abstract: BindingIdentifier, defaultValue: Resolved<U> | null, ...params: any[]): Resolved<T> | Resolved<U> | null;
 
     /**
      * Builds a concrete instance from given binding or class constructor reference
@@ -132,7 +131,7 @@ export default interface Container {
      *
      * @throws {BindingResolutionException}
      */
-    build(target: Constructor<any> | Binding, ...params: any[]): ConcreteInstance;
+    build<T = any>(target: Constructor<any> | Binding, ...params: any[]): Resolved<T>;
 
     /**
      * Call the given method or callback and inject its dependencies

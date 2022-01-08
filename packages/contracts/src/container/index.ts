@@ -5,7 +5,7 @@ import Container, { CONTAINER } from "./Container";
 import {
     BindingIdentifier,
     FactoryCallback,
-    ConcreteInstance
+    Resolved
 } from "./aliases";
 
 export {
@@ -14,7 +14,7 @@ export {
     Binding,
     BindingIdentifier,
     FactoryCallback,
-    ConcreteInstance,
+    Resolved,
     CONTAINER,
     Container as default
 };

@@ -1,6 +1,6 @@
 import Container, {
     BindingIdentifier,
-    ConcreteInstance
+    Resolved
 } from "@aedart/contracts/dist/container";
 
 /**
@@ -27,9 +27,9 @@ export default abstract class Facade {
      *
      * @protected
      *
-     * @type {Map<BindingIdentifier, ConcreteInstance>}
+     * @type {Map<BindingIdentifier, Resolved<any>>}
      */
-    protected static resolvedInstances: Map<BindingIdentifier, ConcreteInstance> = new Map<BindingIdentifier, ConcreteInstance>();
+    protected static resolvedInstances: Map<BindingIdentifier, Resolved<any>> = new Map<BindingIdentifier, Resolved>();
 
     /**
      * Facade
@@ -62,11 +62,11 @@ export default abstract class Facade {
      * Get the "root" instance - the resolved instance
      * from the IoC Service Container
      *
-     * @return {ConcreteInstance}
+     * @return {Resolved}
      *
      * @throws {BindingException}
      */
-    facadeRoot(): ConcreteInstance {
+    facadeRoot(): Resolved {
         return Facade.resolveFacadeInstance(this.facadeAccessor());
     }
 
@@ -75,12 +75,12 @@ export default abstract class Facade {
      *
      * @param {BindingIdentifier} name
      *
-     * @return {ConcreteInstance}
+     * @return {Resolved}
      *
      * @throws {BindingException}
      * @throws {TypeError} If IoC Service Container instance not defined in Facade
      */
-    static resolveFacadeInstance(name: BindingIdentifier): ConcreteInstance {
+    static resolveFacadeInstance(name: BindingIdentifier): Resolved {
         if (this.hasResolvedInstance(name)) {
             return this.resolvedInstances.get(name);
         }
@@ -89,7 +89,7 @@ export default abstract class Facade {
             throw new TypeError('IoC Service Container instance not defined in Facade');
         }
 
-        let resolved: ConcreteInstance = this.serviceContainer?.make(name);
+        let resolved: Resolved = this.serviceContainer?.make(name);
 
         this.resolvedInstances.set(name, resolved);
 
@@ -162,7 +162,7 @@ export default abstract class Facade {
 
         return {
             set(target: Facade, p: string | symbol, value: any, receiver: any): boolean {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
                 if (p in root && !facadeMembers.includes(p as never)) {
                     root[p] = value
                     return true;
@@ -173,7 +173,7 @@ export default abstract class Facade {
             },
 
             get(target: Facade, p: string | symbol, receiver: any): any {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
                 if (p in root && !facadeMembers.includes(p as never)) {
                     return root[p];
                 }
@@ -182,7 +182,7 @@ export default abstract class Facade {
             },
 
             has(target: Facade, p: string | symbol): boolean {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
                 if (p in root && !facadeMembers.includes(p as never)) {
                     return true;
                 }
@@ -191,7 +191,7 @@ export default abstract class Facade {
             },
 
             deleteProperty(target: Facade, p: string | symbol): boolean {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
 
                 // If the property exists inside the facade's root, attempt to
                 // delete it. Note that this might fail, if the property is not
@@ -206,7 +206,7 @@ export default abstract class Facade {
             },
 
             defineProperty(target: Facade, p: string | symbol, attributes: PropertyDescriptor): boolean {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
 
                 Object.defineProperty(root, p, attributes);
 
@@ -214,7 +214,7 @@ export default abstract class Facade {
             },
 
             getOwnPropertyDescriptor(target: Facade, p: string | symbol): PropertyDescriptor | undefined {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
                 if (p in root && !facadeMembers.includes(p as never)) {
                     return Reflect.getOwnPropertyDescriptor(root, p);
                 }
@@ -223,7 +223,7 @@ export default abstract class Facade {
             },
 
             ownKeys(target: Facade): ArrayLike<string | symbol> {
-                let root: ConcreteInstance = target.facadeRoot();
+                let root: Resolved = target.facadeRoot();
 
                 return Reflect.ownKeys(root);
             }

@@ -11,18 +11,18 @@ import Container from "./Container";
  * It is commonly paired with a "concrete" object instance,
  * function or other type of value.
  *
- * @see ConcreteInstance
+ * @see Resolved
  */
 export type BindingIdentifier = string | Function | symbol | object | Constructor<any> | AbstractConstructor<any>;
 
 /**
- * The concrete instance of a binding
+ * Resolved value from service container, e.g. for a binding
  *
  * @see BindingIdentifier
  */
-export type ConcreteInstance = any;
+export type Resolved<T = any> = T;
 
 /**
- * A callback method that must return a concrete instance
+ * A callback method that must return a resolved value
  */
-export type FactoryCallback = (container: Container, ...params: any[]) => ConcreteInstance;
+export type FactoryCallback<T = any> = (container: Container, ...params: any[]) => Resolved<T>;

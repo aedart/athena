@@ -34,8 +34,6 @@ export default abstract class Facade {
     /**
      * Facade
      *
-     * @return {Proxy<Facade>}
-     *
      * @throws {Error} If attempting to initialise abstract Facade
      * @throws {TypeError} If facade accessor is missing
      * @throws {BindingException} If unable to resolve facade accessor from IoC Service Container
@@ -51,6 +49,14 @@ export default abstract class Facade {
         }
 
         return new Proxy<Facade>(this, Facade.makeFacadeProxyHandler());
+    }
+
+    /**
+     * Creates new facade instance
+     */
+    static initFacade() {
+        // @ts-ignore
+        return new this();
     }
 
     /**

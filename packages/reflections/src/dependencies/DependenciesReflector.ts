@@ -38,8 +38,7 @@ export default class DependenciesReflector implements DependenciesReflectorContr
             this.setInstance(new this());
         }
 
-        // @ts-ignore
-        return this.instance;
+        return this.instance as DependenciesReflectorContract;
     }
 
     /**

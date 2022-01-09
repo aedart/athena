@@ -24,11 +24,11 @@ import {
  * }
  * ```
  *
- * @param {AbstractOrConcreteConstructor<any>} [baseClass] Defaults to an anonymous class when none given
+ * @param {AbstractOrConcreteConstructor<any>} baseClass
  *
  * @return {Mixer<T>}
  */
-export function mix<T extends AbstractOrConcreteConstructor<any>>(baseClass: T = class {} as T): MixerContract<T> {
+export function mix<T extends AbstractOrConcreteConstructor<any>>(baseClass: T): MixerContract<T> {
     return new Mixer<T>(baseClass);
 }
 

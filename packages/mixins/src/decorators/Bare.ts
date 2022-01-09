@@ -17,14 +17,14 @@ export const APPLIED_MIXIN: unique symbol = Symbol('@aedart/mixins/applied-mixin
  *
  * @return {Constructor<T>}
  */
-const Bare = <T>(mixin: Function): Constructor<T> => Wrapper.wrap(mixin, (superClass: Function) => {
-    // Apply mixin
-    const applied = mixin(superClass);
+export default function Bare<T>(mixin: Function): Constructor<T> {
+    return Wrapper.wrap(mixin, (superClass: Function) => {
+        // Apply mixin
+        const applied = mixin(superClass);
 
-    // Store reference to original mixin
-    applied.prototype[APPLIED_MIXIN] = Wrapper.unwrap(mixin);
+        // Store reference to original mixin
+        applied.prototype[APPLIED_MIXIN] = Wrapper.unwrap(mixin);
 
-    return applied;
-}) as Constructor<T>;
-
-export default Bare;
+        return applied;
+    }) as Constructor<T>;
+}

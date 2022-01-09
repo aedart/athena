@@ -17,21 +17,21 @@ export const CACHED_REFERENCE: unique symbol = Symbol('@aedart/mixins/cached-mix
  *
  * @return {Constructor<T>}
  */
-const Cached = <T>(mixin: Function): Constructor<T> => Wrapper.wrap(mixin, (superClass: Function) => {
-    // Get or create cached reference map
-    let cached: Map<Function, Function> | undefined = (superClass as any)[CACHED_REFERENCE];
-    if (!cached) {
-        cached = (superClass as any)[CACHED_REFERENCE] = new Map<Function, Function>();
-    }
+export default function Cached<T>(mixin: Function): Constructor<T> {
+    return Wrapper.wrap(mixin, (superClass: Function) => {
+        // Get or create cached reference map
+        let cached: Map<Function, Function> | undefined = (superClass as any)[CACHED_REFERENCE];
+        if (!cached) {
+            cached = (superClass as any)[CACHED_REFERENCE] = new Map<Function, Function>();
+        }
 
-    // Get cached mixin, if available
-    let decorated: Function | undefined = cached.get(mixin);
-    if (!decorated) {
-        decorated = mixin(superClass);
-        cached.set(mixin, (decorated as Function));
-    }
+        // Get cached mixin, if available
+        let decorated: Function | undefined = cached.get(mixin);
+        if (!decorated) {
+            decorated = mixin(superClass);
+            cached.set(mixin, (decorated as Function));
+        }
 
-    return decorated;
-}) as Constructor<T>;
-
-export default Cached;
+        return decorated;
+    }) as Constructor<T>;
+}

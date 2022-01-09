@@ -12,7 +12,7 @@ import { Constructor } from "@aedart/contracts/dist/support";
  *
  * @return {Constructor<T>}
  */
-const HasInstance = <T>(mixin: Function): Constructor<T> => {
+export default function HasInstance<T>(mixin: Function): Constructor<T> {
     // Abort if mixin already has a "has instance" symbol
     if (mixin.hasOwnProperty(Symbol.hasInstance)) {
         return mixin as Constructor<T>;
@@ -27,5 +27,3 @@ const HasInstance = <T>(mixin: Function): Constructor<T> => {
 
     return mixin as Constructor<T>;
 }
-
-export default HasInstance;

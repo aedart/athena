@@ -1,4 +1,5 @@
 import Wrapper from "../helpers/Wrapper";
+import { Constructor } from "@aedart/contracts/dist/support";
 
 /**
  * Applied mixin symbol
@@ -10,11 +11,13 @@ export const APPLIED_MIXIN: unique symbol = Symbol('@aedart/mixins/applied-mixin
  *
  * @mixin
  *
+ * @template T
+ *
  * @param {Function} mixin
  *
- * @return {Function}
+ * @return {Constructor<T>}
  */
-const Bare = (mixin: Function): Function => Wrapper.wrap(mixin, (superClass: Function) => {
+const Bare = <T>(mixin: Function): Constructor<T> => Wrapper.wrap(mixin, (superClass: Function) => {
     // Apply mixin
     const applied = mixin(superClass);
 
@@ -22,6 +25,6 @@ const Bare = (mixin: Function): Function => Wrapper.wrap(mixin, (superClass: Fun
     applied.prototype[APPLIED_MIXIN] = Wrapper.unwrap(mixin);
 
     return applied;
-});
+}) as Constructor<T>;
 
 export default Bare;

@@ -1,4 +1,5 @@
 import Wrapper from "../helpers/Wrapper";
+import { Constructor } from "@aedart/contracts/dist/support";
 
 /**
  * Cached mixin reference identifier
@@ -10,11 +11,13 @@ export const CACHED_REFERENCE: unique symbol = Symbol('@aedart/mixins/cached-mix
  *
  * @mixin
  *
+ * @template T
+ *
  * @param {Function} mixin
  *
- * @return {Function}
+ * @return {Constructor<T>}
  */
-const Cached = (mixin: Function): Function => Wrapper.wrap(mixin, (superClass: Function) => {
+const Cached = <T>(mixin: Function): Constructor<T> => Wrapper.wrap(mixin, (superClass: Function) => {
     // Get or create cached reference map
     let cached: Map<Function, Function> | undefined = (superClass as any)[CACHED_REFERENCE];
     if (!cached) {
@@ -29,6 +32,6 @@ const Cached = (mixin: Function): Function => Wrapper.wrap(mixin, (superClass: F
     }
 
     return decorated;
-});
+}) as Constructor<T>;
 
 export default Cached;

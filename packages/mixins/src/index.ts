@@ -1,24 +1,29 @@
 import Bare from "./decorators/Bare";
 import HasInstance from "./decorators/HasInstance";
 import Cached from "./decorators/Cached";
-import HasMixin from "./helpers/hasMixin";
-import isApplicationOf from "./helpers/isApplicationOf";
-import declare from "./helpers/declare";
-import mix from "./helpers/mix";
 import Wrapper from "./helpers/Wrapper";
-import Builder from "./Builder";
-
-
+import Mixer from "./Mixer";
+import {
+    decorate,
+    isApplicationOf,
+    hasMixin,
+    mix
+} from './helpers'
 
 // Export package methods
 export {
-    HasMixin,
+    // Helpers
+    hasMixin,
     isApplicationOf,
-    Bare,
+    decorate,
+    mix as default,
+
+    // Decorators
     HasInstance,
     Cached,
+    Bare,
+
+    // Builder and wrapper components
     Wrapper,
-    Builder,
-    declare,
-    mix as default
+    Mixer,
 };

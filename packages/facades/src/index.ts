@@ -1,5 +1,10 @@
 import Facade from "./Facade";
+import Container from "./Container";
 
 export {
-    Facade
+    // Facade abstraction
+    Facade,
+
+    // Facade instances...
+    Container,
 }

@@ -10,7 +10,7 @@ import MixerContract, {
  *
  * @template T
  */
-export default class Mixer<T extends AbstractOrConcreteConstructor<any>> implements MixerContract<T> {
+export default class Mixer<T extends AbstractOrConcreteConstructor<any> = new () => {}> implements MixerContract<T> {
 
     /**
      * The base class that is being extended
@@ -24,9 +24,9 @@ export default class Mixer<T extends AbstractOrConcreteConstructor<any>> impleme
     /**
      * Mixer
      *
-     * @param {T} baseClass
+     * @param {T} [baseClass] Defaults to empty class when none is given
      */
-    constructor(baseClass: T) {
+    constructor(baseClass: T = class {} as T) {
         this.baseClass = baseClass;
     }
 

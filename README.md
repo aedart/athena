@@ -1,12 +1,8 @@
 # Athena
 
-A [mono repository](https://en.wikipedia.org/wiki/Monorepo) that contains various packages.
+## Deprecated
 
-**Note**: _This project is still work-in-progress!_
-
-# Official Documentation
-
-**TODO:** _Official documentation has yet to be manifested_
+_This experimental project has been deprecated in favour of a newer attempt. Visit the [Ion repository](https://github.com/aedart/ion) to learn more..._
 
 ## Versioning
 
